@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
+const { pool } = require('../config/database');
 const fs = require('fs');
 const path = require('path');
 
-// Helper function to read JSON file
+// Helper function to read JSON file (fallback)
 const readJSONFile = (filename) => {
     try {
         const filePath = path.join(__dirname, '..', 'data', filename);
@@ -11,6 +12,17 @@ const readJSONFile = (filename) => {
     } catch (error) {
         console.error(`Error reading ${filename}:`, error);
         return [];
+    }
+};
+
+// Helper function to get user from PostgreSQL
+const getUserFromDB = async (userId) => {
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+        return result.rows[0] || null;
+    } catch (error) {
+        console.error('Error getting user from database:', error);
+        return null;
     }
 };
 
@@ -36,11 +48,16 @@ exports.protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'oldbridge_secret_key_2024');
     console.log('Decoded token:', decoded);
 
-    // Find user in JSON file
-    const users = readJSONFile('users.json');
-    console.log('Available users:', users.map(u => ({ id: u.id, email: u.email })));
-    const user = users.find(u => u.id === decoded.id);
-    console.log('Found user:', user ? { id: user.id, email: user.email } : 'null');
+    // Find user in PostgreSQL database
+    let user = await getUserFromDB(decoded.id);
+    
+    // Fallback to JSON file if PostgreSQL fails
+    if (!user) {
+      const users = readJSONFile('users.json');
+      user = users.find(u => u.id === decoded.id);
+    }
+    
+    console.log('Found user:', user ? { id: user.id, email: user.email, role: user.role } : 'null');
 
     if (!user) {
       return res.status(401).json({ success: false, error: 'User not found' });

@@ -470,23 +470,36 @@ app.put('/api/products/:id', authenticateToken, upload.single('imageFile'), asyn
 });
 
 app.delete('/api/products/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 'super_admin') {
-    return res.status(403).json({ message: 'Super admin icazəsi tələb olunur' });
+  console.log('Delete product request:', {
+    productId: req.params.id,
+    userRole: req.user.role,
+    userId: req.user.id
+  });
+  
+  if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
+    console.log('Access denied - user role:', req.user.role);
+    return res.status(403).json({ message: 'Admin icazəsi tələb olunur' });
   }
   
   try {
     const client = await pool.connect();
+    console.log('Database connection established for product deletion');
+    
     const result = await client.query('DELETE FROM products WHERE id = $1 RETURNING *', [req.params.id]);
     client.release();
     
+    console.log('Delete query result:', result.rows);
+    
     if (result.rows.length === 0) {
+      console.log('Product not found with ID:', req.params.id);
       return res.status(404).json({ message: 'Məhsul tapılmadı' });
     }
     
+    console.log('Product deleted successfully:', result.rows[0]);
     res.json({ message: 'Məhsul uğurla silindi' });
   } catch (error) {
     console.error('Delete product error:', error);
-    res.status(500).json({ message: 'Server xətası' });
+    res.status(500).json({ message: 'Server xətası: ' + error.message });
   }
 });
 
@@ -612,8 +625,8 @@ app.put('/api/categories/:id', authenticateToken, upload.single('imageFile'), as
 });
 
 app.delete('/api/categories/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 'super_admin') {
-    return res.status(403).json({ message: 'Super admin icazəsi tələb olunur' });
+  if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Admin icazəsi tələb olunur' });
   }
   
   try {
@@ -756,8 +769,8 @@ app.put('/api/brands/:id', authenticateToken, upload.single('logoFile'), async (
 });
 
 app.delete('/api/brands/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 'super_admin') {
-    return res.status(403).json({ message: 'Super admin icazəsi tələb olunur' });
+  if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Admin icazəsi tələb olunur' });
   }
   
   try {
