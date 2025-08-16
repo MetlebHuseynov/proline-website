@@ -5,31 +5,13 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
-const sql = require('mssql');
 const mysql = require('mysql2/promise');
 const { Pool } = require('pg');
 const { handleWebhook, getWebhookStatus } = require('./webhook-handler');
 require('dotenv').config();
 
-// Database Configuration - supports MSSQL, MySQL, and PostgreSQL
-const dbType = process.env.DB_TYPE || 'mssql';
-
-// MSSQL Configuration
-const mssqlConfig = {
-    server: process.env.DB_SERVER || 'localhost',
-    database: process.env.DB_NAME || 'OldBridgeDB',
-    user: process.env.DB_USER || 'sa',
-    password: process.env.DB_PASSWORD || 'your_password',
-    options: {
-        encrypt: false,
-        trustServerCertificate: true
-    },
-    pool: {
-        max: 10,
-        min: 0,
-        idleTimeoutMillis: 30000
-    }
-};
+// Database Configuration - supports MySQL and PostgreSQL
+const dbType = process.env.DB_TYPE || 'mysql';
 
 // MySQL Configuration
 const mysqlConfig = {
@@ -91,15 +73,6 @@ const initializeDatabase = async () => {
             // Migrate data from JSON files if tables are empty
             await migratePostgreSQLDataFromJSON();
             
-        } else {
-            dbPool = await sql.connect(mssqlConfig);
-            console.log('MSSQL data bazasına uğurla bağlandı');
-            
-            // Create tables if they don't exist
-            await createTables();
-            
-            // Migrate data from JSON files if tables are empty
-            await migrateDataFromJSON();
         }
         
     } catch (error) {
@@ -170,132 +143,9 @@ const writeJSONFile = (filename, data) => {
   }
 };
 
-// Database table creation functions
-const createTables = async () => {
-    try {
-        const request = dbPool.request();
-        
-        // Create Categories table
-        await request.query(`
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Categories' AND xtype='U')
-            CREATE TABLE Categories (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                name NVARCHAR(255) NOT NULL,
-                description NVARCHAR(MAX),
-                createdAt DATETIME2 DEFAULT GETDATE(),
-                updatedAt DATETIME2 DEFAULT GETDATE()
-            )
-        `);
-        
-        // Create Brands table
-        await request.query(`
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Brands' AND xtype='U')
-            CREATE TABLE Brands (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                name NVARCHAR(255) NOT NULL,
-                description NVARCHAR(MAX),
-                createdAt DATETIME2 DEFAULT GETDATE(),
-                updatedAt DATETIME2 DEFAULT GETDATE()
-            )
-        `);
-        
-        // Create Products table
-        await request.query(`
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Products' AND xtype='U')
-            CREATE TABLE Products (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                name NVARCHAR(255) NOT NULL,
-                description NVARCHAR(MAX),
-                price DECIMAL(10,2) NOT NULL,
-                categoryId INT,
-                brandId INT,
-                image NVARCHAR(500),
-                stock INT DEFAULT 0,
-                status NVARCHAR(50) DEFAULT 'active',
-                createdAt DATETIME2 DEFAULT GETDATE(),
-                updatedAt DATETIME2 DEFAULT GETDATE(),
-                FOREIGN KEY (categoryId) REFERENCES Categories(id),
-                FOREIGN KEY (brandId) REFERENCES Brands(id)
-            )
-        `);
-        
-        // Create Users table
-        await request.query(`
-            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Users' AND xtype='U')
-            CREATE TABLE Users (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                email NVARCHAR(255) UNIQUE NOT NULL,
-                password NVARCHAR(255) NOT NULL,
-                name NVARCHAR(255),
-                role NVARCHAR(50) DEFAULT 'user',
-                createdAt DATETIME2 DEFAULT GETDATE(),
-                updatedAt DATETIME2 DEFAULT GETDATE()
-            )
-        `);
-        
-        console.log('Data bazası cədvəlləri uğurla yaradıldı');
-    } catch (error) {
-        console.error('Cədvəl yaratma xətası:', error);
-    }
-};
 
-const migrateDataFromJSON = async () => {
-    try {
-        const request = dbPool.request();
-        
-        // Check if tables are empty and migrate data
-        const categoriesCount = await request.query('SELECT COUNT(*) as count FROM Categories');
-        if (categoriesCount.recordset[0].count === 0) {
-            const categories = readJSONFile('categories.json');
-            for (const category of categories) {
-                await request.query(`
-                    INSERT INTO Categories (name, description) 
-                    VALUES ('${category.name}', '${category.description || ''}')
-                `);
-            }
-            console.log('Kateqoriyalar MSSQL-ə köçürüldü');
-        }
-        
-        const brandsCount = await request.query('SELECT COUNT(*) as count FROM Brands');
-        if (brandsCount.recordset[0].count === 0) {
-            const brands = readJSONFile('brands.json');
-            for (const brand of brands) {
-                await request.query(`
-                    INSERT INTO Brands (name, description) 
-                    VALUES ('${brand.name}', '${brand.description || ''}')
-                `);
-            }
-            console.log('Brendlər MSSQL-ə köçürüldü');
-        }
-        
-        const productsCount = await request.query('SELECT COUNT(*) as count FROM Products');
-        if (productsCount.recordset[0].count === 0) {
-            const products = readJSONFile('products.json');
-            for (const product of products) {
-                await request.query(`
-                    INSERT INTO Products (name, description, price, categoryId, brandId, image, stock, status) 
-                    VALUES ('${product.name}', '${product.description || ''}', ${product.price}, ${product.categoryId}, ${product.brandId}, '${product.image || ''}', ${product.stock || 0}, '${product.status || 'active'}')
-                `);
-            }
-            console.log('Məhsullar MSSQL-ə köçürüldü');
-        }
-        
-        const usersCount = await request.query('SELECT COUNT(*) as count FROM Users');
-        if (usersCount.recordset[0].count === 0) {
-            const users = readJSONFile('users.json');
-            for (const user of users) {
-                await request.query(`
-                    INSERT INTO Users (email, password, name, role) 
-                    VALUES ('${user.email}', '${user.password}', '${user.name || ''}', '${user.role || 'user'}')
-                `);
-            }
-            console.log('İstifadəçilər MSSQL-ə köçürüldü');
-        }
-        
-    } catch (error) {
-        console.error('Data köçürmə xətası:', error);
-    }
-};
+
+
 
 // MySQL table creation functions
 const createMySQLTables = async () => {
