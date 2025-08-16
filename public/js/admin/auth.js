@@ -12,8 +12,9 @@ const loginSpinner = document.getElementById('login-spinner');
 const loginText = document.getElementById('login-text');
 const alertContainer = document.getElementById('alert-container');
 
-// API URLs
-const AUTH_URL = 'http://localhost:5000/api/auth';
+// API URLs - Auto-detect environment
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const AUTH_URL = isProduction ? 'https://proline-website.onrender.com/api/auth' : 'http://localhost:3000/api/auth';
 
 // Utility Functions
 const showAlert = (message, type = 'danger') => {

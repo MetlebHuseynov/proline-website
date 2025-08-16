@@ -10,7 +10,9 @@ const usersCountElement = document.getElementById('users-count');
 const recentProductsTable = document.getElementById('recent-products-table');
 
 // API URLs
-const API_BASE_URL = 'http://localhost:5000/api';
+// Auto-detect environment for API URL
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const API_BASE_URL = isProduction ? 'https://proline-website.onrender.com/api' : 'http://localhost:3000/api';
 const PRODUCTS_URL = `${API_BASE_URL}/products`;
 const CATEGORIES_URL = `${API_BASE_URL}/categories`;
 const BRANDS_URL = `${API_BASE_URL}/brands`;

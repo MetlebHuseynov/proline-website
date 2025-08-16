@@ -10,11 +10,12 @@ const userNameElement = document.getElementById('user-name');
 
 // Configuration
 const CONFIG = {
-    API_URL: 'http://localhost:5000/api'
+    API_URL: 'http://localhost:3000/api'
 };
 
-// API URLs
-const API_URL = CONFIG.API_URL;
+// Auto-detect environment for API URL
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const API_URL = isProduction ? 'https://proline-website.onrender.com/api' : 'http://localhost:3000/api';
 const AUTH_URL = `${API_URL}/auth`;
 
 // Utility Functions

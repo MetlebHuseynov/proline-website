@@ -10,5 +10,17 @@
     "image": "/uploads/imageFile-1755340435383-468797752.jpg",
     "status": "active",
     "createdAt": "2025-08-16T10:33:55.386Z"
+  },
+  {
+    "id": 2,
+    "name": "Metleb Huseynov",
+    "price": 12,
+    "description": "",
+    "stock": 12,
+    "categoryId": 5,
+    "brandId": 4,
+    "image": "/uploads/imageFile-1755340864080-291827442.jpg",
+    "status": "active",
+    "createdAt": "2025-08-16T10:41:04.082Z"
   }
 ]

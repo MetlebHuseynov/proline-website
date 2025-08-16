@@ -1,7 +1,9 @@
 // Products Management
 class ProductsManager {
     constructor() {
-        this.apiUrl = 'http://localhost:5000/api';
+        // API Configuration - Auto-detect environment
+        const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        this.apiUrl = isProduction ? 'https://proline-website.onrender.com/api' : 'http://localhost:3000/api';
         this.products = [];
         this.categories = [];
         this.brands = [];

@@ -1,7 +1,9 @@
 // Users Management
 class UsersManager {
     constructor() {
-        this.apiUrl = 'http://localhost:5000/api';
+        // Auto-detect environment for API URL
+        const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        this.apiUrl = isProduction ? 'https://proline-website.onrender.com/api' : 'http://localhost:3000/api';
         this.users = [];
         this.currentUser = null;
         this.loggedInUser = null;

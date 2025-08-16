@@ -1,3 +1,7 @@
+// API Configuration - Auto-detect environment
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const API_URL = isProduction ? 'https://proline-website.onrender.com/api' : 'http://localhost:3000/api';
+
 // Categories Management
 
 class CategoriesManager {
@@ -46,7 +50,7 @@ class CategoriesManager {
     async getCurrentUser() {
         try {
             const token = getAuthToken();
-            const response = await fetch('http://localhost:5000/api/auth/me', {
+            const response = await fetch(`${API_URL}/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -134,7 +138,7 @@ class CategoriesManager {
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
             }
-            const response = await fetch(`http://localhost:5000/api/categories`, { headers });
+            const response = await fetch(`${API_URL}/categories`, { headers });
             if (!response.ok) throw new Error('Failed to load categories');
             const result = await response.json();
             this.categories = result.data || result;
@@ -346,7 +350,7 @@ class CategoriesManager {
 
     async createCategory(categoryData) {
         const token = getAuthToken();
-        const response = await fetch(`http://localhost:5000/api/categories`, {
+        const response = await fetch(`${API_URL}/categories`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -365,7 +369,7 @@ class CategoriesManager {
 
     async createCategoryWithFile(formData) {
         const token = getAuthToken();
-        const response = await fetch(`http://localhost:5000/api/categories`, {
+        const response = await fetch(`${API_URL}/categories`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -383,7 +387,7 @@ class CategoriesManager {
 
     async updateCategory(id, categoryData) {
         const token = getAuthToken();
-        const response = await fetch(`http://localhost:5000/api/categories/${id}`, {
+        const response = await fetch(`${API_URL}/categories/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -402,7 +406,7 @@ class CategoriesManager {
 
     async updateCategoryWithFile(id, formData) {
         const token = getAuthToken();
-        const response = await fetch(`http://localhost:5000/api/categories/${id}`, {
+        const response = await fetch(`${API_URL}/categories/${id}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -432,7 +436,7 @@ class CategoriesManager {
 
         try {
             const token = getAuthToken();
-            const response = await fetch(`http://localhost:5000/api/categories/${id}`, {
+            const response = await fetch(`${API_URL}/categories/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
