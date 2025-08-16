@@ -1,53 +1,5 @@
 [
   {
-    "id": 9,
-    "name": "hjamsbnz",
-    "price": 45678,
-    "description": "sdfghjkl",
-    "stock": 12345678,
-    "categoryId": 5,
-    "brandId": 5,
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5vUjzGVx60NqzYjEeq02Q5dKlKUAUjy7hQQ&s",
-    "status": "active",
-    "createdAt": "2025-08-15T07:59:28.533Z"
-  },
-  {
-    "id": 10,
-    "name": "Metleb Huseynov",
-    "price": 123456,
-    "description": "",
-    "stock": 132,
-    "categoryId": 5,
-    "brandId": 3,
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnT5rkerYjzQ-ycEmk6L2jwf7B_mHiSSCwxw&s",
-    "status": "active",
-    "createdAt": "2025-08-15T10:16:57.873Z"
-  },
-  {
-    "id": 11,
-    "name": "sdna",
-    "price": 12,
-    "description": "12",
-    "stock": 12,
-    "categoryId": 2,
-    "brandId": 3,
-    "image": "/uploads/imageFile-1755337600974-661289970.jpg",
-    "status": "active",
-    "createdAt": "2025-08-16T09:46:40.977Z"
-  },
-  {
-    "id": 12,
-    "name": "wjnsma xz",
-    "price": 12345,
-    "description": "sbnmbam s",
-    "stock": 23,
-    "categoryId": 1,
-    "brandId": 1,
-    "image": "https://www.sunix.com/en/images/desktop/header/product/product_kind_0.png",
-    "status": "active",
-    "createdAt": "2025-08-16T09:48:13.757Z"
-  },
-  {
     "id": 13,
     "name": "12345",
     "price": 1234,
@@ -70,5 +22,17 @@
     "image": "/uploads/imageFile-1755338083442-281142173.png",
     "status": "active",
     "createdAt": "2025-08-16T09:54:43.448Z"
+  },
+  {
+    "id": 15,
+    "name": "21345",
+    "price": 12,
+    "description": "12",
+    "stock": 12,
+    "categoryId": 6,
+    "brandId": 4,
+    "image": "/uploads/imageFile-1755338270374-508716740.png",
+    "status": "active",
+    "createdAt": "2025-08-16T09:57:50.376Z"
   }
 ]

@@ -314,6 +314,12 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
 
 // Products Routes
 app.get('/api/products', (req, res) => {
+  // Prevent caching for real-time data
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
   const products = readJSONFile('products.json');
   res.json(products);
 });
@@ -478,6 +484,12 @@ app.delete('/api/products/:id', authenticateToken, (req, res) => {
 
 // Categories Routes
 app.get('/api/categories', (req, res) => {
+  // Prevent caching for real-time data
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
   const categories = readJSONFile('categories.json');
   res.json(categories);
 });
@@ -610,6 +622,12 @@ app.delete('/api/categories/:id', authenticateToken, async (req, res) => {
 
 // Brands Routes
 app.get('/api/brands', (req, res) => {
+  // Prevent caching for real-time data
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
   const brands = readJSONFile('brands.json');
   res.json(brands);
 });
