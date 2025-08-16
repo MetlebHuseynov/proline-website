@@ -1,6 +1,6 @@
 const fs = require('fs').promises;
 const path = require('path');
-const { pool } = require('../config/database');
+const { pool } = require('../config/pool');
 
 class FeaturedProductController {
     constructor() {

@@ -5,27 +5,9 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
-const { Pool } = require('pg');
 const { handleWebhook, getWebhookStatus } = require('./webhook-handler');
+const { pool } = require('./config/pool');
 require('dotenv').config();
-
-// PostgreSQL database connection
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
-
-// Test database connection
-pool.connect((err, client, release) => {
-  if (err) {
-    console.error('PostgreSQL bağlantı xətası:', err.stack);
-  } else {
-    console.log('PostgreSQL database-ə uğurla bağlandı!');
-    release();
-  }
-});
 
 const app = express();
 
@@ -989,8 +971,8 @@ app.get('*', (req, res) => {
 
 // Initialize PostgreSQL tables and migrate data
 const initializeDatabase = async () => {
-  await createPostgreSQLTables();
-  await migratePostgreSQLDataFromJSON();
+    await createPostgreSQLTables();
+    await migratePostgreSQLDataFromJSON();
 };
 
 // Start server
