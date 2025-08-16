@@ -55,7 +55,7 @@ const formatDate = (dateString) => {
 
 // Auth Functions
 const getAuthToken = () => {
-    return localStorage.getItem('adminToken') || localStorage.getItem('token') || sessionStorage.getItem('token');
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
 };
 
 const checkAuth = () => {

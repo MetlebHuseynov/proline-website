@@ -1,10 +1,19 @@
 // Database konfiqurasiya faylı
 const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 const fs = require('fs').promises;
 const path = require('path');
 
 // Environment variables
 require('dotenv').config();
+
+// PostgreSQL connection pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 class DatabaseManager {
     constructor() {
@@ -262,5 +271,6 @@ function getDatabase() {
 
 module.exports = {
     getDatabase,
-    DatabaseManager
+    DatabaseManager,
+    pool
 };
