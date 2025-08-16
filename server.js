@@ -5,81 +5,10 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
-const mysql = require('mysql2/promise');
-const { Pool } = require('pg');
 const { handleWebhook, getWebhookStatus } = require('./webhook-handler');
 require('dotenv').config();
 
-// Database Configuration - supports MySQL and PostgreSQL
-const dbType = process.env.DB_TYPE || 'mysql';
-
-// MySQL Configuration
-const mysqlConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'oldbridge',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-};
-
-// PostgreSQL Configuration
-const postgresConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'proline',
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    max: 10,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000
-};
-
-// Database connection
-let dbPool;
-let mysqlPool;
-let postgresPool;
-
-const initializeDatabase = async () => {
-    try {
-        if (dbType === 'mysql') {
-            mysqlPool = mysql.createPool(mysqlConfig);
-            // Test connection
-            const connection = await mysqlPool.getConnection();
-            await connection.ping();
-            connection.release();
-            console.log('MySQL data bazasına uğurla bağlandı');
-            
-            // Create tables if they don't exist
-            await createMySQLTables();
-            
-            // Migrate data from JSON files if tables are empty
-            await migrateMySQLDataFromJSON();
-            
-        } else if (dbType === 'postgresql') {
-            postgresPool = new Pool(postgresConfig);
-            // Test connection
-            const client = await postgresPool.connect();
-            await client.query('SELECT NOW()');
-            client.release();
-            console.log('PostgreSQL data bazasına uğurla bağlandı');
-            
-            // Create tables if they don't exist
-            await createPostgreSQLTables();
-            
-            // Migrate data from JSON files if tables are empty
-            await migratePostgreSQLDataFromJSON();
-            
-        }
-        
-    } catch (error) {
-        console.error('Data bazası bağlantı xətası:', error);
-        console.log('JSON fayllardan istifadə ediləcək...');
-    }
-};
+// JSON-based backend - no database required
 
 const app = express();
 
@@ -1023,10 +952,7 @@ app.get('*', (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
   console.log('ProLine server is running on port', PORT);
   console.log('JSON-based backend initialized successfully!');
-  
-  // Initialize MSSQL database
-  await initializeDatabase();
 });

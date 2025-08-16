@@ -58,5 +58,17 @@
     "image": "/uploads/imageFile-1755337790202-579607295.jpg",
     "status": "active",
     "createdAt": "2025-08-16T09:49:50.204Z"
+  },
+  {
+    "id": 14,
+    "name": "qart",
+    "price": 17,
+    "description": "ksjxc",
+    "stock": 20,
+    "categoryId": 4,
+    "brandId": 4,
+    "image": "/uploads/imageFile-1755338083442-281142173.png",
+    "status": "active",
+    "createdAt": "2025-08-16T09:54:43.448Z"
   }
 ]
