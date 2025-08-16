@@ -5,10 +5,27 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
+const { Pool } = require('pg');
 const { handleWebhook, getWebhookStatus } = require('./webhook-handler');
 require('dotenv').config();
 
-// JSON-based backend - no database required
+// PostgreSQL database connection
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
+// Test database connection
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error('PostgreSQL bağlantı xətası:', err.stack);
+  } else {
+    console.log('PostgreSQL database-ə uğurla bağlandı!');
+    release();
+  }
+});
 
 const app = express();
 
@@ -76,39 +93,39 @@ const writeJSONFile = (filename, data) => {
 
 
 
-// MySQL table creation functions
-const createMySQLTables = async () => {
+// PostgreSQL table creation functions
+const createPostgreSQLTables = async () => {
     try {
-        const connection = await mysqlPool.getConnection();
+        const client = await pool.connect();
         
         // Create Categories table
-        await connection.execute(`
+        await client.query(`
             CREATE TABLE IF NOT EXISTS categories (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
                 description TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
         
         // Create Brands table
-        await connection.execute(`
+        await client.query(`
             CREATE TABLE IF NOT EXISTS brands (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
                 description TEXT,
                 logo VARCHAR(255),
                 website VARCHAR(255),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
         
         // Create Products table
-        await connection.execute(`
+        await client.query(`
             CREATE TABLE IF NOT EXISTS products (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
                 description TEXT,
                 price DECIMAL(10,2) NOT NULL,
@@ -120,28 +137,28 @@ const createMySQLTables = async () => {
                 weight DECIMAL(8,2),
                 status VARCHAR(50) DEFAULT 'active',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
         
         // Create Users table
-        await connection.execute(`
+        await client.query(`
             CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 username VARCHAR(100) UNIQUE,
                 email VARCHAR(255) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
                 name VARCHAR(255),
-                role ENUM('admin', 'user') DEFAULT 'user',
+                role VARCHAR(20) DEFAULT 'user',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
         
         // Create Featured Products table
-        await connection.execute(`
+        await client.query(`
             CREATE TABLE IF NOT EXISTS featured_products (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 product_id INT,
                 order_index INT DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -149,49 +166,49 @@ const createMySQLTables = async () => {
             )
         `);
         
-        connection.release();
-        console.log('MySQL cədvəlləri uğurla yaradıldı');
+        client.release();
+        console.log('PostgreSQL cədvəlləri uğurla yaradıldı');
     } catch (error) {
-        console.error('MySQL cədvəl yaratma xətası:', error);
+        console.error('PostgreSQL cədvəl yaratma xətası:', error);
     }
 };
 
-// MySQL data migration
-const migrateMySQLDataFromJSON = async () => {
+// PostgreSQL data migration
+const migratePostgreSQLDataFromJSON = async () => {
     try {
-        const connection = await mysqlPool.getConnection();
+        const client = await pool.connect();
         
         // Check if tables are empty and migrate data
-        const [categoriesRows] = await connection.execute('SELECT COUNT(*) as count FROM categories');
-        if (categoriesRows[0].count === 0) {
+        const categoriesResult = await client.query('SELECT COUNT(*) as count FROM categories');
+        if (parseInt(categoriesResult.rows[0].count) === 0) {
             const categories = readJSONFile('categories.json');
             for (const category of categories) {
-                await connection.execute(
-                    'INSERT INTO categories (name, description) VALUES (?, ?)',
+                await client.query(
+                    'INSERT INTO categories (name, description) VALUES ($1, $2)',
                     [category.name, category.description || '']
                 );
             }
-            console.log('Kateqoriyalar MySQL-ə köçürüldü');
+            console.log('Kateqoriyalar PostgreSQL-ə köçürüldü');
         }
         
-        const [brandsRows] = await connection.execute('SELECT COUNT(*) as count FROM brands');
-        if (brandsRows[0].count === 0) {
+        const brandsResult = await client.query('SELECT COUNT(*) as count FROM brands');
+        if (parseInt(brandsResult.rows[0].count) === 0) {
             const brands = readJSONFile('brands.json');
             for (const brand of brands) {
-                await connection.execute(
-                    'INSERT INTO brands (name, description) VALUES (?, ?)',
+                await client.query(
+                    'INSERT INTO brands (name, description) VALUES ($1, $2)',
                     [brand.name, brand.description || '']
                 );
             }
-            console.log('Brendlər MySQL-ə köçürüldü');
+            console.log('Brendlər PostgreSQL-ə köçürüldü');
         }
         
-        const [productsRows] = await connection.execute('SELECT COUNT(*) as count FROM products');
-        if (productsRows[0].count === 0) {
+        const productsResult = await client.query('SELECT COUNT(*) as count FROM products');
+        if (parseInt(productsResult.rows[0].count) === 0) {
             const products = readJSONFile('products.json');
             for (const product of products) {
-                await connection.execute(
-                    'INSERT INTO products (name, description, price, category, brand, image, stock, sku, weight, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                await client.query(
+                    'INSERT INTO products (name, description, price, category, brand, image, stock, sku, weight, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
                     [
                         product.name,
                         product.description || '',
@@ -206,24 +223,35 @@ const migrateMySQLDataFromJSON = async () => {
                     ]
                 );
             }
-            console.log('Məhsullar MySQL-ə köçürüldü');
+            console.log('Məhsullar PostgreSQL-ə köçürüldü');
         }
         
-        const [usersRows] = await connection.execute('SELECT COUNT(*) as count FROM users');
-        if (usersRows[0].count === 0) {
+        const usersResult = await client.query('SELECT COUNT(*) as count FROM users');
+        if (parseInt(usersResult.rows[0].count) === 0) {
             const users = readJSONFile('users.json');
-            for (const user of users) {
-                await connection.execute(
-                    'INSERT INTO users (username, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
-                    [user.username || '', user.email, user.password, user.name || '', user.role || 'user']
+            if (users && users.length > 0) {
+                for (const user of users) {
+                    if (user.username && user.email) {
+                        await client.query(
+                            'INSERT INTO users (username, email, password, name, role) VALUES ($1, $2, $3, $4, $5)',
+                            [user.username, user.email, user.password, user.name || '', user.role || 'user']
+                        );
+                    }
+                }
+                console.log('İstifadəçilər PostgreSQL-ə köçürüldü');
+            } else {
+                // Default admin user yaradılır
+                await client.query(
+                    'INSERT INTO users (username, email, password, name, role) VALUES ($1, $2, $3, $4, $5)',
+                    ['admin', 'admin@proline.com', 'admin123', 'Administrator', 'admin']
                 );
+                console.log('Default admin user yaradıldı');
             }
-            console.log('İstifadəçilər MySQL-ə köçürüldü');
         }
         
-        connection.release();
+        client.release();
     } catch (error) {
-        console.error('MySQL data köçürmə xətası:', error);
+        console.error('PostgreSQL data köçürmə xətası:', error);
     }
 };
 
@@ -313,36 +341,48 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
 });
 
 // Products Routes
-app.get('/api/products', (req, res) => {
+app.get('/api/products', async (req, res) => {
   // Prevent caching for real-time data
   res.set({
     'Cache-Control': 'no-cache, no-store, must-revalidate',
     'Pragma': 'no-cache',
     'Expires': '0'
   });
-  const products = readJSONFile('products.json');
-  res.json(products);
-});
-
-app.get('/api/products/:id', (req, res) => {
-  const products = readJSONFile('products.json');
-  const product = products.find(p => p.id === parseInt(req.params.id));
   
-  if (!product) {
-    return res.status(404).json({ message: 'Məhsul tapılmadı' });
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM products ORDER BY created_at DESC');
+    client.release();
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Products fetch error:', error);
+    res.status(500).json({ message: 'Server xətası' });
   }
-  
-  res.json(product);
 });
 
-app.post('/api/products', authenticateToken, upload.single('imageFile'), (req, res) => {
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
+    client.release();
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Məhsul tapılmadı' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Product fetch error:', error);
+    res.status(500).json({ message: 'Server xətası' });
+  }
+});
+
+app.post('/api/products', authenticateToken, upload.single('imageFile'), async (req, res) => {
   if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Admin icazəsi tələb olunur' });
   }
   
   try {
-    const products = readJSONFile('products.json');
-    
     // Handle image - either from URL or uploaded file
     let imageUrl = '';
     if (req.body.imageUrl) {
@@ -351,33 +391,32 @@ app.post('/api/products', authenticateToken, upload.single('imageFile'), (req, r
       imageUrl = `/uploads/${req.file.filename}`;
     }
     
-    const newProduct = {
-      id: Math.max(...products.map(p => p.id), 0) + 1,
-      name: req.body.name,
-      price: parseFloat(req.body.price) || 0,
-      description: req.body.description || '',
-      stock: parseInt(req.body.stock) || 0,
-      categoryId: parseInt(req.body.categoryId) || null,
-      brandId: parseInt(req.body.brandId) || null,
-      image: imageUrl,
-      status: req.body.status || 'active',
-      createdAt: new Date().toISOString()
-    };
+    const client = await pool.connect();
+    const result = await client.query(
+      'INSERT INTO products (name, description, price, category, brand, image, stock, sku, weight, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+      [
+        req.body.name,
+        req.body.description || '',
+        parseFloat(req.body.price) || 0,
+        req.body.categoryId ? parseInt(req.body.categoryId).toString() : '',
+        req.body.brandId ? parseInt(req.body.brandId).toString() : '',
+        imageUrl,
+        parseInt(req.body.stock) || 0,
+        req.body.sku || '',
+        parseFloat(req.body.weight) || 0,
+        req.body.status || 'active'
+      ]
+    );
+    client.release();
     
-    products.push(newProduct);
-    
-    if (writeJSONFile('products.json', products)) {
-      res.status(201).json(newProduct);
-    } else {
-      res.status(500).json({ message: 'Məhsul əlavə edilərkən xəta baş verdi' });
-    }
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Add product error:', error);
     res.status(500).json({ message: 'Server xətası' });
   }
 });
 
-app.put('/api/products/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
+app.put('/api/products/:id', authenticateToken, upload.single('imageFile'), async (req, res) => {
   if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Admin icazəsi tələb olunur' });
   }
@@ -386,15 +425,20 @@ app.put('/api/products/:id', authenticateToken, upload.single('imageFile'), (req
     console.log('PUT /api/products/:id - Request body:', req.body);
     console.log('PUT /api/products/:id - File:', req.file ? req.file.filename : 'No file');
     
-    const products = readJSONFile('products.json');
-    const productIndex = products.findIndex(p => p.id === parseInt(req.params.id));
+    const client = await pool.connect();
     
-    if (productIndex === -1) {
+    // First, get the current product
+    const currentResult = await client.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
+    
+    if (currentResult.rows.length === 0) {
+      client.release();
       return res.status(404).json({ message: 'Məhsul tapılmadı' });
     }
     
+    const currentProduct = currentResult.rows[0];
+    
     // Handle image - either from URL or uploaded file
-    let imageUrl = products[productIndex].image; // Keep existing image by default
+    let imageUrl = currentProduct.image; // Keep existing image by default
     console.log('Current image URL:', imageUrl);
     
     if (req.body.imageUrl) {
@@ -403,7 +447,7 @@ app.put('/api/products/:id', authenticateToken, upload.single('imageFile'), (req
     } else if (req.file) {
       console.log('Processing uploaded file:', req.file.filename);
       // Delete old uploaded file if it exists
-      const oldImage = products[productIndex].image;
+      const oldImage = currentProduct.image;
       if (oldImage && oldImage.startsWith('/uploads/')) {
         const oldFilePath = path.join(__dirname, 'public', oldImage);
         if (fs.existsSync(oldFilePath)) {
@@ -417,65 +461,47 @@ app.put('/api/products/:id', authenticateToken, upload.single('imageFile'), (req
       console.log('Keeping existing image:', imageUrl);
     }
     
-    // Handle category and brand - convert to IDs and remove old string fields
-    let categoryId = products[productIndex].categoryId;
-    let brandId = products[productIndex].brandId;
+    // Update the product
+    const result = await client.query(
+      'UPDATE products SET name = $1, description = $2, price = $3, category = $4, brand = $5, image = $6, stock = $7, sku = $8, weight = $9, status = $10, updated_at = CURRENT_TIMESTAMP WHERE id = $11 RETURNING *',
+      [
+        req.body.name || currentProduct.name,
+        req.body.description !== undefined ? req.body.description : currentProduct.description,
+        req.body.price ? parseFloat(req.body.price) : currentProduct.price,
+        req.body.categoryId ? parseInt(req.body.categoryId).toString() : currentProduct.category,
+        req.body.brandId ? parseInt(req.body.brandId).toString() : currentProduct.brand,
+        imageUrl,
+        req.body.stock ? parseInt(req.body.stock) : currentProduct.stock,
+        req.body.sku || currentProduct.sku,
+        req.body.weight ? parseFloat(req.body.weight) : currentProduct.weight,
+        req.body.status || currentProduct.status,
+        req.params.id
+      ]
+    );
     
-    if (req.body.categoryId) {
-      categoryId = parseInt(req.body.categoryId);
-    }
-    if (req.body.brandId) {
-      brandId = parseInt(req.body.brandId);
-    }
-    
-    products[productIndex] = {
-      ...products[productIndex],
-      name: req.body.name || products[productIndex].name,
-      price: req.body.price ? parseFloat(req.body.price) : products[productIndex].price,
-      description: req.body.description !== undefined ? req.body.description : products[productIndex].description,
-      stock: req.body.stock ? parseInt(req.body.stock) : products[productIndex].stock,
-      categoryId: categoryId,
-      brandId: brandId,
-      image: imageUrl,
-      status: req.body.status || products[productIndex].status,
-      updatedAt: new Date().toISOString()
-    };
-    
-    // Remove old string fields if they exist
-    delete products[productIndex].category;
-    delete products[productIndex].brand;
-    
-    if (writeJSONFile('products.json', products)) {
-      res.json(products[productIndex]);
-    } else {
-      res.status(500).json({ message: 'Məhsul yenilənərkən xəta baş verdi' });
-    }
+    client.release();
+    res.json(result.rows[0]);
   } catch (error) {
     console.error('Update product error:', error);
     res.status(500).json({ message: 'Server xətası' });
   }
 });
 
-app.delete('/api/products/:id', authenticateToken, (req, res) => {
+app.delete('/api/products/:id', authenticateToken, async (req, res) => {
   if (req.user.role !== 'super_admin') {
     return res.status(403).json({ message: 'Super admin icazəsi tələb olunur' });
   }
   
   try {
-    const products = readJSONFile('products.json');
-    const productIndex = products.findIndex(p => p.id === parseInt(req.params.id));
+    const client = await pool.connect();
+    const result = await client.query('DELETE FROM products WHERE id = $1 RETURNING *', [req.params.id]);
+    client.release();
     
-    if (productIndex === -1) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Məhsul tapılmadı' });
     }
     
-    products.splice(productIndex, 1);
-    
-    if (writeJSONFile('products.json', products)) {
-      res.json({ message: 'Məhsul uğurla silindi' });
-    } else {
-      res.status(500).json({ message: 'Məhsul silinərkən xəta baş verdi' });
-    }
+    res.json({ message: 'Məhsul uğurla silindi' });
   } catch (error) {
     console.error('Delete product error:', error);
     res.status(500).json({ message: 'Server xətası' });
@@ -483,26 +509,40 @@ app.delete('/api/products/:id', authenticateToken, (req, res) => {
 });
 
 // Categories Routes
-app.get('/api/categories', (req, res) => {
+app.get('/api/categories', async (req, res) => {
   // Prevent caching for real-time data
   res.set({
     'Cache-Control': 'no-cache, no-store, must-revalidate',
     'Pragma': 'no-cache',
     'Expires': '0'
   });
-  const categories = readJSONFile('categories.json');
-  res.json(categories);
+  
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM categories ORDER BY name');
+    client.release();
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Categories fetch error:', error);
+    res.status(500).json({ message: 'Server xətası' });
+  }
 });
 
-app.get('/api/categories/:id', (req, res) => {
-  const categories = readJSONFile('categories.json');
-  const category = categories.find(c => c.id === parseInt(req.params.id));
-  
-  if (!category) {
-    return res.status(404).json({ message: 'Kateqoriya tapılmadı' });
+app.get('/api/categories/:id', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM categories WHERE id = $1', [req.params.id]);
+    client.release();
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Kateqoriya tapılmadı' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Category fetch error:', error);
+    res.status(500).json({ message: 'Server xətası' });
   }
-  
-  res.json(category);
 });
 
 app.post('/api/categories', authenticateToken, upload.single('imageFile'), async (req, res) => {
@@ -516,9 +556,6 @@ app.post('/api/categories', authenticateToken, upload.single('imageFile'), async
     if (!name) {
       return res.status(400).json({ message: 'Kateqoriya adı tələb olunur' });
     }
-
-    const categories = readJSONFile('categories.json');
-    const newId = categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1;
     
     let categoryImage = image || '/images/brand-placeholder.svg';
     
@@ -527,23 +564,19 @@ app.post('/api/categories', authenticateToken, upload.single('imageFile'), async
       categoryImage = `/uploads/${req.file.filename}`;
     }
     
-    const newCategory = {
-      id: newId,
-      name,
-      description: description || '',
-      image: categoryImage,
-      productCount: 0,
-      status: status || 'active',
-      createdAt: new Date().toISOString()
-    };
+    const client = await pool.connect();
+    const result = await client.query(
+      'INSERT INTO categories (name, description, image, status) VALUES ($1, $2, $3, $4) RETURNING *',
+      [
+        name,
+        description || '',
+        categoryImage,
+        status || 'active'
+      ]
+    );
+    client.release();
     
-    categories.push(newCategory);
-    
-    if (writeJSONFile('categories.json', categories)) {
-      res.status(201).json(newCategory);
-    } else {
-      res.status(500).json({ message: 'Kateqoriya yaradılarkən xəta baş verdi' });
-    }
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Create category error:', error);
     res.status(500).json({ message: 'Server xətası' });
@@ -556,37 +589,40 @@ app.put('/api/categories/:id', authenticateToken, upload.single('imageFile'), as
   }
   
   try {
-    const categoryId = parseInt(req.params.id);
     const { name, description, image, status } = req.body;
     
-    const categories = readJSONFile('categories.json');
-    const categoryIndex = categories.findIndex(c => c.id === categoryId);
+    const client = await pool.connect();
     
-    if (categoryIndex === -1) {
+    // First, get the current category
+    const currentResult = await client.query('SELECT * FROM categories WHERE id = $1', [req.params.id]);
+    
+    if (currentResult.rows.length === 0) {
+      client.release();
       return res.status(404).json({ message: 'Kateqoriya tapılmadı' });
     }
     
-    let categoryImage = image || categories[categoryIndex].image;
+    const currentCategory = currentResult.rows[0];
+    let categoryImage = image || currentCategory.image;
     
     // If file was uploaded, use the uploaded file path
     if (req.file) {
       categoryImage = `/uploads/${req.file.filename}`;
     }
     
-    categories[categoryIndex] = {
-      ...categories[categoryIndex],
-      name: name || categories[categoryIndex].name,
-      description: description || categories[categoryIndex].description,
-      image: categoryImage,
-      status: status || categories[categoryIndex].status,
-      updatedAt: new Date().toISOString()
-    };
+    // Update the category
+    const result = await client.query(
+      'UPDATE categories SET name = $1, description = $2, image = $3, status = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5 RETURNING *',
+      [
+        name || currentCategory.name,
+        description || currentCategory.description,
+        categoryImage,
+        status || currentCategory.status,
+        req.params.id
+      ]
+    );
     
-    if (writeJSONFile('categories.json', categories)) {
-      res.json(categories[categoryIndex]);
-    } else {
-      res.status(500).json({ message: 'Kateqoriya yenilənərkən xəta baş verdi' });
-    }
+    client.release();
+    res.json(result.rows[0]);
   } catch (error) {
     console.error('Update category error:', error);
     res.status(500).json({ message: 'Server xətası' });
@@ -599,21 +635,15 @@ app.delete('/api/categories/:id', authenticateToken, async (req, res) => {
   }
   
   try {
-    const categoryId = parseInt(req.params.id);
-    const categories = readJSONFile('categories.json');
-    const categoryIndex = categories.findIndex(c => c.id === categoryId);
+    const client = await pool.connect();
+    const result = await client.query('DELETE FROM categories WHERE id = $1 RETURNING *', [req.params.id]);
+    client.release();
     
-    if (categoryIndex === -1) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Kateqoriya tapılmadı' });
     }
     
-    categories.splice(categoryIndex, 1);
-    
-    if (writeJSONFile('categories.json', categories)) {
-      res.json({ message: 'Kateqoriya uğurla silindi' });
-    } else {
-      res.status(500).json({ message: 'Kateqoriya silinərkən xəta baş verdi' });
-    }
+    res.json({ message: 'Kateqoriya uğurla silindi' });
   } catch (error) {
     console.error('Delete category error:', error);
     res.status(500).json({ message: 'Server xətası' });
@@ -621,26 +651,40 @@ app.delete('/api/categories/:id', authenticateToken, async (req, res) => {
 });
 
 // Brands Routes
-app.get('/api/brands', (req, res) => {
+app.get('/api/brands', async (req, res) => {
   // Prevent caching for real-time data
   res.set({
     'Cache-Control': 'no-cache, no-store, must-revalidate',
     'Pragma': 'no-cache',
     'Expires': '0'
   });
-  const brands = readJSONFile('brands.json');
-  res.json(brands);
+  
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM brands ORDER BY name');
+    client.release();
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Brands fetch error:', error);
+    res.status(500).json({ message: 'Server xətası' });
+  }
 });
 
-app.get('/api/brands/:id', (req, res) => {
-  const brands = readJSONFile('brands.json');
-  const brand = brands.find(b => b.id === parseInt(req.params.id));
-  
-  if (!brand) {
-    return res.status(404).json({ message: 'Brend tapılmadı' });
+app.get('/api/brands/:id', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM brands WHERE id = $1', [req.params.id]);
+    client.release();
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Brend tapılmadı' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Brand fetch error:', error);
+    res.status(500).json({ message: 'Server xətası' });
   }
-  
-  res.json(brand);
 });
 
 app.post('/api/brands', authenticateToken, upload.single('logoFile'), async (req, res) => {
@@ -654,9 +698,6 @@ app.post('/api/brands', authenticateToken, upload.single('logoFile'), async (req
     if (!name) {
       return res.status(400).json({ message: 'Brend adı tələb olunur' });
     }
-
-    const brands = readJSONFile('brands.json');
-    const newId = brands.length > 0 ? Math.max(...brands.map(b => b.id)) + 1 : 1;
     
     let brandLogo = logo || '/images/brand-placeholder.svg';
     
@@ -665,24 +706,20 @@ app.post('/api/brands', authenticateToken, upload.single('logoFile'), async (req
       brandLogo = `/uploads/${req.file.filename}`;
     }
     
-    const newBrand = {
-      id: newId,
-      name,
-      description: description || '',
-      logo: brandLogo,
-      website: website || '',
-      productCount: 0,
-      status: status || 'active',
-      createdAt: new Date().toISOString()
-    };
+    const client = await pool.connect();
+    const result = await client.query(
+      'INSERT INTO brands (name, description, logo, website, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [
+        name,
+        description || '',
+        brandLogo,
+        website || '',
+        status || 'active'
+      ]
+    );
+    client.release();
     
-    brands.push(newBrand);
-    
-    if (writeJSONFile('brands.json', brands)) {
-      res.status(201).json(newBrand);
-    } else {
-      res.status(500).json({ message: 'Brend yaradılarkən xəta baş verdi' });
-    }
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Create brand error:', error);
     res.status(500).json({ message: 'Server xətası' });
@@ -695,38 +732,41 @@ app.put('/api/brands/:id', authenticateToken, upload.single('logoFile'), async (
   }
   
   try {
-    const brandId = parseInt(req.params.id);
     const { name, description, logo, website, status } = req.body;
     
-    const brands = readJSONFile('brands.json');
-    const brandIndex = brands.findIndex(b => b.id === brandId);
+    const client = await pool.connect();
     
-    if (brandIndex === -1) {
+    // First, get the current brand
+    const currentResult = await client.query('SELECT * FROM brands WHERE id = $1', [req.params.id]);
+    
+    if (currentResult.rows.length === 0) {
+      client.release();
       return res.status(404).json({ message: 'Brend tapılmadı' });
     }
     
-    let brandLogo = logo || brands[brandIndex].logo;
+    const currentBrand = currentResult.rows[0];
+    let brandLogo = logo || currentBrand.logo;
     
     // If file was uploaded, use the uploaded file path
     if (req.file) {
       brandLogo = `/uploads/${req.file.filename}`;
     }
     
-    brands[brandIndex] = {
-      ...brands[brandIndex],
-      name: name || brands[brandIndex].name,
-      description: description || brands[brandIndex].description,
-      logo: brandLogo,
-      website: website || brands[brandIndex].website,
-      status: status || brands[brandIndex].status,
-      updatedAt: new Date().toISOString()
-    };
+    // Update the brand
+    const result = await client.query(
+      'UPDATE brands SET name = $1, description = $2, logo = $3, website = $4, status = $5, updated_at = CURRENT_TIMESTAMP WHERE id = $6 RETURNING *',
+      [
+        name || currentBrand.name,
+        description || currentBrand.description,
+        brandLogo,
+        website || currentBrand.website,
+        status || currentBrand.status,
+        req.params.id
+      ]
+    );
     
-    if (writeJSONFile('brands.json', brands)) {
-      res.json(brands[brandIndex]);
-    } else {
-      res.status(500).json({ message: 'Brend yenilənərkən xəta baş verdi' });
-    }
+    client.release();
+    res.json(result.rows[0]);
   } catch (error) {
     console.error('Update brand error:', error);
     res.status(500).json({ message: 'Server xətası' });
@@ -739,21 +779,15 @@ app.delete('/api/brands/:id', authenticateToken, async (req, res) => {
   }
   
   try {
-    const brandId = parseInt(req.params.id);
-    const brands = readJSONFile('brands.json');
-    const brandIndex = brands.findIndex(b => b.id === brandId);
+    const client = await pool.connect();
+    const result = await client.query('DELETE FROM brands WHERE id = $1 RETURNING *', [req.params.id]);
+    client.release();
     
-    if (brandIndex === -1) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Brend tapılmadı' });
     }
     
-    brands.splice(brandIndex, 1);
-    
-    if (writeJSONFile('brands.json', brands)) {
-      res.json({ message: 'Brend uğurla silindi' });
-    } else {
-      res.status(500).json({ message: 'Brend silinərkən xəta baş verdi' });
-    }
+    res.json({ message: 'Brend uğurla silindi' });
   } catch (error) {
     console.error('Delete brand error:', error);
     res.status(500).json({ message: 'Server xətası' });
@@ -761,29 +795,30 @@ app.delete('/api/brands/:id', authenticateToken, async (req, res) => {
 });
 
 // Users Routes (Admin only)
-app.get('/api/users', authenticateToken, (req, res) => {
+app.get('/api/users', authenticateToken, async (req, res) => {
   if (req.user.role !== 'super_admin' && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Admin icazəsi tələb olunur' });
   }
   
-  const users = readJSONFile('users.json');
-  
-  // Super admin can see all users, admin can only see themselves
-  let filteredUsers;
-  if (req.user.role === 'super_admin') {
-    filteredUsers = users;
-  } else {
-    // Admin can only see their own profile
-    filteredUsers = users.filter(user => user.id === req.user.id);
+  try {
+    let query;
+    let params = [];
+    
+    // Super admin can see all users, admin can only see themselves
+    if (req.user.role === 'super_admin') {
+      query = 'SELECT id, username, email, role, status, created_at, updated_at FROM users ORDER BY id';
+    } else {
+      // Admin can only see their own profile
+      query = 'SELECT id, username, email, role, status, created_at, updated_at FROM users WHERE id = $1';
+      params = [req.user.id];
+    }
+    
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ message: 'Server xətası' });
   }
-  
-  // Remove passwords from response
-  const safeUsers = filteredUsers.map(user => {
-    const { password, ...safeUser } = user;
-    return safeUser;
-  });
-  
-  res.json(safeUsers);
 });
 
 app.post('/api/users', authenticateToken, async (req, res) => {
@@ -792,44 +827,29 @@ app.post('/api/users', authenticateToken, async (req, res) => {
   }
   
   try {
-    const { name, email, password, role, status } = req.body;
+    const { username, email, password, role, status } = req.body;
     
     // Validate required fields
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Ad, email və şifrə tələb olunur' });
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: 'İstifadəçi adı, email və şifrə tələb olunur' });
     }
     
-    const users = readJSONFile('users.json');
-    
     // Check if user already exists
-    const existingUser = users.find(user => user.email === email);
-    if (existingUser) {
-      return res.status(400).json({ message: 'Bu email artıq istifadə olunur' });
+    const existingUser = await pool.query('SELECT id FROM users WHERE email = $1 OR username = $2', [email, username]);
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ message: 'Bu email və ya istifadəçi adı artıq istifadə olunur' });
     }
     
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Generate new ID
-    const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
-    
     // Create new user
-    const newUser = {
-      id: newId,
-      name,
-      email,
-      password: hashedPassword,
-      role: role || 'user',
-      status: status || 'active',
-      createdAt: new Date().toISOString()
-    };
+    const result = await pool.query(
+      'INSERT INTO users (username, email, password, role, status) VALUES ($1, $2, $3, $4, $5) RETURNING id, username, email, role, status, created_at, updated_at',
+      [username, email, hashedPassword, role || 'user', status || 'active']
+    );
     
-    users.push(newUser);
-    writeJSONFile('users.json', users);
-    
-    // Return user without password
-    const { password: _, ...safeUser } = newUser;
-    res.status(201).json(safeUser);
+    res.status(201).json(result.rows[0]);
     
   } catch (error) {
     console.error('User creation error:', error);
@@ -844,43 +864,39 @@ app.put('/api/users/:id', authenticateToken, async (req, res) => {
   
   try {
     const userId = parseInt(req.params.id);
-    const { name, email, role, status, password } = req.body;
+    const { username, email, role, status, password } = req.body;
     
     // Validate required fields
-    if (!name || !email) {
-      return res.status(400).json({ message: 'Ad və email tələb olunur' });
+    if (!username || !email) {
+      return res.status(400).json({ message: 'İstifadəçi adı və email tələb olunur' });
     }
     
-    const users = readJSONFile('users.json');
-    const userIndex = users.findIndex(user => user.id === userId);
-    
-    if (userIndex === -1) {
+    // Check if user exists
+    const userCheck = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
+    if (userCheck.rows.length === 0) {
       return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
     }
     
-    // Check if email is already used by another user
-    const existingUser = users.find(user => user.email === email && user.id !== userId);
-    if (existingUser) {
-      return res.status(400).json({ message: 'Bu email artıq istifadə olunur' });
+    // Check if email or username is already used by another user
+    const existingUser = await pool.query('SELECT id FROM users WHERE (email = $1 OR username = $2) AND id != $3', [email, username, userId]);
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ message: 'Bu email və ya istifadəçi adı artıq istifadə olunur' });
     }
     
-    // Update user data
-    users[userIndex].name = name;
-    users[userIndex].email = email;
-    users[userIndex].role = role || users[userIndex].role;
-    users[userIndex].status = status || users[userIndex].status;
-    users[userIndex].updatedAt = new Date().toISOString();
+    let query, params;
     
     // Update password if provided
     if (password) {
-      users[userIndex].password = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
+      query = 'UPDATE users SET username = $1, email = $2, role = $3, status = $4, password = $5, updated_at = CURRENT_TIMESTAMP WHERE id = $6 RETURNING id, username, email, role, status, created_at, updated_at';
+      params = [username, email, role, status, hashedPassword, userId];
+    } else {
+      query = 'UPDATE users SET username = $1, email = $2, role = $3, status = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5 RETURNING id, username, email, role, status, created_at, updated_at';
+      params = [username, email, role, status, userId];
     }
     
-    writeJSONFile('users.json', users);
-    
-    // Return user without password
-    const { password: _, ...safeUser } = users[userIndex];
-    res.json(safeUser);
+    const result = await pool.query(query, params);
+    res.json(result.rows[0]);
     
   } catch (error) {
     console.error('User update error:', error);
@@ -888,17 +904,17 @@ app.put('/api/users/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/api/users/:id', authenticateToken, (req, res) => {
+app.delete('/api/users/:id', authenticateToken, async (req, res) => {
   if (req.user.role !== 'super_admin') {
     return res.status(403).json({ message: 'Super admin icazəsi tələb olunur' });
   }
   
   try {
     const userId = parseInt(req.params.id);
-    const users = readJSONFile('users.json');
     
-    const userIndex = users.findIndex(user => user.id === userId);
-    if (userIndex === -1) {
+    // Check if user exists
+    const userCheck = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
+    if (userCheck.rows.length === 0) {
       return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
     }
     
@@ -907,9 +923,8 @@ app.delete('/api/users/:id', authenticateToken, (req, res) => {
       return res.status(400).json({ message: 'Özünüzü silə bilməzsiniz' });
     }
     
-    // Remove user from array
-    users.splice(userIndex, 1);
-    writeJSONFile('users.json', users);
+    // Delete user
+    await pool.query('DELETE FROM users WHERE id = $1', [userId]);
     
     res.json({ message: 'İstifadəçi uğurla silindi' });
     
@@ -942,19 +957,23 @@ app.get('/api/webhook/status', authenticateToken, (req, res) => {
 });
 
 // Dashboard stats
-app.get('/api/dashboard/stats', authenticateToken, (req, res) => {
+app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
   try {
-    const products = readJSONFile('products.json');
-    const categories = readJSONFile('categories.json');
-    const brands = readJSONFile('brands.json');
-    const users = readJSONFile('users.json');
+    const [productsResult, categoriesResult, brandsResult, usersResult] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM products'),
+      pool.query('SELECT COUNT(*) FROM categories'),
+      pool.query('SELECT COUNT(*) FROM brands'),
+      pool.query('SELECT COUNT(*) FROM users')
+    ]);
+    
+    // Featured products still from JSON file for now
     const featuredProducts = readJSONFile('featured-products.json');
     
     res.json({
-      products: products.length,
-      categories: categories.length,
-      brands: brands.length,
-      users: users.length,
+      products: parseInt(productsResult.rows[0].count),
+      categories: parseInt(categoriesResult.rows[0].count),
+      brands: parseInt(brandsResult.rows[0].count),
+      users: parseInt(usersResult.rows[0].count),
       featuredProducts: featuredProducts.length
     });
   } catch (error) {
@@ -968,9 +987,16 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Initialize PostgreSQL tables and migrate data
+const initializeDatabase = async () => {
+  await createPostgreSQLTables();
+  await migratePostgreSQLDataFromJSON();
+};
+
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log('ProLine server is running on port', PORT);
-  console.log('JSON-based backend initialized successfully!');
+  await initializeDatabase();
+  console.log('PostgreSQL backend initialized successfully!');
 });

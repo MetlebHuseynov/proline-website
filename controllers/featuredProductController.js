@@ -1,5 +1,6 @@
 const fs = require('fs').promises;
 const path = require('path');
+const { pool } = require('../config/database');
 
 class FeaturedProductController {
     constructor() {
@@ -31,8 +32,8 @@ class FeaturedProductController {
 
     async readProducts() {
         try {
-            const data = await fs.readFile(this.productsPath, 'utf8');
-            return JSON.parse(data);
+            const result = await pool.query('SELECT * FROM products ORDER BY id');
+            return result.rows;
         } catch (error) {
             console.error('Məhsullar oxunarkən xəta:', error);
             return [];
@@ -41,8 +42,8 @@ class FeaturedProductController {
 
     async readCategories() {
         try {
-            const data = await fs.readFile(this.categoriesPath, 'utf8');
-            return JSON.parse(data);
+            const result = await pool.query('SELECT * FROM categories ORDER BY id');
+            return result.rows;
         } catch (error) {
             console.error('Kateqoriyalar oxunarkən xəta:', error);
             return [];
@@ -51,8 +52,8 @@ class FeaturedProductController {
 
     async readBrands() {
         try {
-            const data = await fs.readFile(this.brandsPath, 'utf8');
-            return JSON.parse(data);
+            const result = await pool.query('SELECT * FROM brands ORDER BY id');
+            return result.rows;
         } catch (error) {
             console.error('Markalar oxunarkən xəta:', error);
             return [];
@@ -79,8 +80,8 @@ class FeaturedProductController {
 
                     return {
                         ...product,
-                        category: categoryMap.get(product.categoryId) || 'Naməlum',
-                        brand: brandMap.get(product.brandId) || 'Naməlum',
+                        category: categoryMap.get(product.category_id) || 'Naməlum',
+                        brand: brandMap.get(product.brand_id) || 'Naməlum',
                         featuredOrder: featured.order,
                         featuredId: featured.id
                     };
@@ -194,8 +195,8 @@ class FeaturedProductController {
                         description: product.description,
                         price: product.price,
                         image: product.image,
-                        category: categoryMap.get(product.categoryId) || 'Naməlum',
-                        brand: brandMap.get(product.brandId) || 'Naməlum',
+                        category: categoryMap.get(product.category_id) || 'Naməlum',
+                        brand: brandMap.get(product.brand_id) || 'Naməlum',
                         stock: product.stock
                     };
                 })
