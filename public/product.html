@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Məhsul Təfərrüatları - ProLine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/">ProLine</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Ana Səhifə</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/products.html">Məhsullar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/brands.html">Markalar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about.html">Haqqımızda</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact.html">Əlaqə</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        <a href="/admin/login.html" class="btn btn-outline-light me-2">Admin Girişi</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Product Detail Section -->
+    <section class="py-5">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Ana Səhifə</a></li>
+                    <li class="breadcrumb-item"><a href="/products.html">Məhsullar</a></li>
+                    <li class="breadcrumb-item" id="category-breadcrumb"><a href="#" id="category-link">Kateqoriya</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" id="product-name-breadcrumb">Məhsul Adı</li>
+                </ol>
+            </nav>
+
+            <!-- Loading Spinner -->
+            <div id="product-loading" class="text-center py-5">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Yüklənir...</span>
+                </div>
+            </div>
+
+            <!-- Product Not Found -->
+            <div id="product-not-found" class="text-center py-5 d-none">
+                <div class="alert alert-warning">
+                    <h4><i class="fas fa-exclamation-triangle me-2"></i> Məhsul Tapılmadı</h4>
+                    <p>Axtardığınız məhsul mövcud deyil və ya silinmişdir.</p>
+                    <a href="/products.html" class="btn btn-primary mt-3">Bütün Məhsulları Gözdən Keçirin</a>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div id="product-details" class="d-none">
+                <div class="row">
+                    <!-- Product Image -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4 text-center">
+                                <img id="product-image" src="/images/product-placeholder.svg" alt="Məhsul" class="product-detail-img img-fluid">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="col-md-6">
+                        <h1 id="product-name" class="mb-2">Məhsul Adı</h1>
+                        <div id="product-brand" class="mb-3">
+                            <span class="text-muted">Marka: </span>
+                            <a href="#" id="brand-link">Marka Adı</a>
+                        </div>
+                        <div class="mb-3">
+                            <span id="product-price" class="product-price">$0.00</span>
+                            <span id="product-stock" class="badge bg-success ms-2">Stokda</span>
+                        </div>
+                        <div class="mb-4">
+                            <p id="product-description">Məhsul təsviri burada göstəriləcək.</p>
+                        </div>
+
+                        <!-- Product Meta -->
+                        <div class="product-meta">
+                            <div class="row">
+                                <div class="col-6 mb-2">
+                                    <strong>SKU:</strong> <span id="product-sku">N/A</span>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <strong>Kateqoriya:</strong> <span id="product-category">N/A</span>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <strong>Material:</strong> <span id="product-material">N/A</span>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <strong>Çəki:</strong> <span id="product-weight">N/A</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2 d-md-flex">
+                            <button class="btn btn-primary" id="inquiry-btn">
+                                <i class="fas fa-envelope me-2"></i> Sorğu
+                            </button>
+                            <button class="btn btn-outline-primary" id="download-spec-btn">
+                                <i class="fas fa-file-download me-2"></i> Texniki Spesifikasiyalar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Tabs -->
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">Texniki Təfərrüatlar</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="applications-tab" data-bs-toggle="tab" data-bs-target="#applications" type="button" role="tab">Tətbiqlər</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="installation-tab" data-bs-toggle="tab" data-bs-target="#installation" type="button" role="tab">Quraşdırma Təlimatı</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content p-4 border border-top-0 rounded-bottom" id="productTabsContent">
+                            <div class="tab-pane fade show active" id="details" role="tabpanel">
+                                <div id="technical-details">
+                                    <p>Texniki təfərrüatlar burada göstəriləcək.</p>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="applications" role="tabpanel">
+                                <div id="product-applications">
+                                    <p>Məhsul tətbiqləri burada göstəriləcək.</p>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="installation" role="tabpanel">
+                                <div id="installation-guide">
+                                    <p>Quraşdırma təlimatı burada göstəriləcək.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Products -->
+            <div class="mt-5" id="related-products-section">
+                <h3 class="mb-4">Əlaqəli Məhsullar</h3>
+                <div class="row" id="related-products">
+                    <div class="col-12 text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Yüklənir...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Inquiry Modal -->
+    <div class="modal fade" id="inquiryModal" tabindex="-1" aria-labelledby="inquiryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inquiryModalLabel">Məhsul Sorğusu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bağla"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="inquiry-form">
+                        <div class="mb-3">
+                            <label for="inquiry-product-name" class="form-label">Məhsul</label>
+                            <input type="text" class="form-control" id="inquiry-product-name" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inquiry-name" class="form-label">Adınız</label>
+                            <input type="text" class="form-control" id="inquiry-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inquiry-email" class="form-label">E-poçt Ünvanı</label>
+                            <input type="email" class="form-control" id="inquiry-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inquiry-phone" class="form-label">Telefon Nömrəsi</label>
+                            <input type="tel" class="form-control" id="inquiry-phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="inquiry-message" class="form-label">Mesajınız</label>
+                            <textarea class="form-control" id="inquiry-message" rows="4" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bağla</button>
+                    <button type="button" class="btn btn-primary" id="send-inquiry-btn">Sorğu Göndər</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>ProLine</h5>
+                    <p>Azərbaycanda keyfiyyətli tikinti materialları üçün etibarlı tərəfdaşınız.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Sürətli Keçidlər</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Ana Səhifə</a></li>
+                        <li><a href="/products.html" class="text-white">Məhsullar</a></li>
+                        <li><a href="/brands.html" class="text-white">Markalar</a></li>
+                        <li><a href="/about.html" class="text-white">Haqqımızda</a></li>
+                        <li><a href="/contact.html" class="text-white">Əlaqə</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Bizimlə Əlaqə</h5>
+                    <address>
+                        <p><i class="fas fa-map-marker-alt"></i> 123 Construction Ave, Baku, Azerbaijan</p>
+                        <p><i class="fas fa-phone"></i> +994 12 345 6789</p>
+                        <p><i class="fas fa-envelope"></i> info@proline.az</p>
+                    </address>
+                    <div class="social-icons">
+                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2023 ProLine. Bütün hüquqlar qorunur.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-3">Məxfilik Siyasəti</a>
+                    <a href="#" class="text-white">Xidmət Şərtləri</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/product-detail.js"></script>
+</body>
+</html>

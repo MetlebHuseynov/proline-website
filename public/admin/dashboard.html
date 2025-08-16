@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin İdarə Paneli - ProLine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin/dashboard.html" class="sidebar-brand">ProLine Admin</a>
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/admin/dashboard.html" class="sidebar-menu-item active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>İdarə Paneli</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/products.html" class="sidebar-menu-item">
+                        <i class="fas fa-box"></i>
+                        <span>Məhsullar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/categories.html" class="sidebar-menu-item">
+                        <i class="fas fa-tags"></i>
+                        <span>Kateqoriyalar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/brands.html" class="sidebar-menu-item">
+                        <i class="fas fa-building"></i>
+                        <span>Markalar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/featured-products.html" class="sidebar-menu-item">
+                        <i class="fas fa-star"></i>
+                        <span>Öndə Olan Məhsullar</span>
+                    </a>
+                </li>
+                <div class="sidebar-divider"></div>
+                <li>
+                    <a href="/admin/users.html" class="sidebar-menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>İstifadəçilər</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/settings.html" class="sidebar-menu-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Tənzimləmələr</span>
+                    </a>
+                </li>
+                <div class="sidebar-divider"></div>
+                <li>
+                    <a href="#" class="sidebar-menu-item" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Çıxış</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <button class="topbar-toggler" id="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="topbar-search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Axtarış...">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="topbar-divider"></div>
+                <div class="topbar-user dropdown">
+                    <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <span class="topbar-user-name" id="user-name">Admin İstifadəçi</span>
+                        <img src="/images/user-placeholder.svg" alt="User" class="topbar-user-img">
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="/admin/profile.html"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Profil</a></li>
+                        <li><a class="dropdown-item" href="/admin/settings.html"><i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i> Tənzimləmələr</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="dropdown-logout-btn"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Çıxış</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Content Wrapper -->
+            <div class="content-wrapper">
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">İdarə Paneli</h1>
+                        <a href="/" class="btn btn-sm btn-primary" target="_blank">
+                            <i class="fas fa-external-link-alt me-1"></i> Veb Saytı Gör
+                        </a>
+                    </div>
+
+                    <!-- Alert Container -->
+                    <div id="alert-container"></div>
+
+                    <!-- Dashboard Cards -->
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card dashboard-card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Məhsullar</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="products-count">2,500</div>
+                                            <div class="text-xs text-success"><i class="fas fa-arrow-up"></i> 12% artım</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-box fa-2x text-primary dashboard-card-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card dashboard-card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Kateqoriyalar</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="categories-count">45</div>
+                                            <div class="text-xs text-success"><i class="fas fa-arrow-up"></i> 8% artım</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-tags fa-2x text-success dashboard-card-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card dashboard-card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Markalar</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="brands-count">50+</div>
+                                            <div class="text-xs text-info"><i class="fas fa-arrow-right"></i> Sabit</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-building fa-2x text-info dashboard-card-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card dashboard-card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">İstifadəçilər</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="users-count">1,000+</div>
+                                            <div class="text-xs text-warning"><i class="fas fa-arrow-up"></i> 25% artım</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-users fa-2x text-warning dashboard-card-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-xl-4 col-md-6 mb-4">
+                            <div class="card dashboard-card border-left-danger shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Aylıq Satış</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">₼125,000</div>
+                                            <div class="text-xs text-success"><i class="fas fa-arrow-up"></i> 18% artım</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-chart-line fa-2x text-danger dashboard-card-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mb-4">
+                            <div class="card dashboard-card border-left-dark shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Aktiv Sifarişlər</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">156</div>
+                                            <div class="text-xs text-info"><i class="fas fa-clock"></i> Gözləyir</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-shopping-cart fa-2x text-dark dashboard-card-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 mb-4">
+                            <div class="card dashboard-card border-left-secondary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Müştəri Məmnuniyyəti</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">98.5%</div>
+                                            <div class="text-xs text-success"><i class="fas fa-star"></i> Əla</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-smile fa-2x text-secondary dashboard-card-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Products -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Son Məhsullar</h6>
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                <i class="fas fa-plus"></i> Məhsul Əlavə Et
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Şəkil</th>
+                                            <th>Ad</th>
+                                            <th>Kateqoriya</th>
+                                            <th>Marka</th>
+                                            <th>Qiymət</th>
+                                            <th>Status</th>
+                                            <th>Əməliyyatlar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-products-table">
+                                        <tr>
+                                            <td colspan="7" class="text-center">Məhsullar yüklənir...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProductModalLabel">Yeni Məhsul Əlavə Et</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productName" class="form-label">Məhsul Adı</label>
+                                    <input type="text" class="form-control" id="productName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productPrice" class="form-label">Qiymət (₼)</label>
+                                    <input type="number" class="form-control" id="productPrice" step="0.01" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productCategory" class="form-label">Kateqoriya</label>
+                                    <select class="form-control" id="productCategory" required>
+                                        <option value="">Kateqoriya seçin</option>
+                        <option value="Polad Məhsulları">Polad Məhsulları</option>
+                        <option value="Alüminium Məhsulları">Alüminium Məhsulları</option>
+                        <option value="İnşaat Materialları">İnşaat Materialları</option>
+                        <option value="Qaynaq Materialları">Qaynaq Materialları</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productBrand" class="form-label">Marka</label>
+                                        <select class="form-select" id="productBrand" name="brand" required>
+                                            <option value="">Marka seçin</option>
+                        <option value="ProLine Steel">ProLine Steel</option>
+                        <option value="ProLine Aluminum">ProLine Aluminum</option>
+                        <option value="ProLine Construction">ProLine Construction</option>
+                        <option value="ProLine Welding">ProLine Welding</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productDescription" class="form-label">Təsvir</label>
+                            <textarea class="form-control" id="productDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productImage" class="form-label">Məhsul Şəkli</label>
+                            <input type="file" class="form-control" id="productImage" accept="image/*" required>
+                            <div class="mt-2">
+                                <img id="imagePreview" src="" alt="Şəkil önizləməsi" style="max-width: 200px; max-height: 200px; display: none;" class="img-thumbnail">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productStock" class="form-label">Stok Miqdarı</label>
+                                    <input type="number" class="form-control" id="productStock" min="0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productStatus" class="form-label">Status</label>
+                                    <select class="form-control" id="productStatus" required>
+                                        <option value="active">Aktiv</option>
+                        <option value="inactive">Qeyri-aktiv</option>
+                        <option value="draft">Layihə</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv Et</button>
+                    <button type="button" class="btn btn-primary" id="saveProductBtn">Məhsulu Saxla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/admin/main.js"></script>
+    <script src="/js/admin/dashboard.js"></script>
+</body>
+</html>

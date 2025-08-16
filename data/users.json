@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "name": "Super Admin",
+    "email": "admin@proline.az",
+    "password": "$2b$10$rOvHPxfuqjNy.33ErMdCa.6NCXa0M.saUDdyGlFQOkeY8WrJ6H8Aq",
+    "role": "super_admin",
+    "phone": "+994501234567",
+    "address": "Bakı şəhəri, Nəsimi rayonu",
+    "status": "active",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "lastLogin": "2025-08-15T10:16:36.362Z"
+  },
+  {
+    "id": 4,
+    "name": "Metleb",
+    "email": "metleb@proline.az",
+    "password": "$2b$10$GWGRN6b4r7OKXoFq7YguM.qqHSFAqAwDOsiPeU6pbGm3hOx0DcJvu",
+    "role": "admin",
+    "status": "active",
+    "createdAt": "2025-08-14T20:48:46.470Z",
+    "lastLogin": "2025-08-15T09:56:36.864Z"
+  },
+  {
+    "id": 5,
+    "name": "Samir",
+    "email": "samir@proline.az",
+    "password": "$2b$10$oJ4MhtMNDYdo/jJ40Jmq6eyFMvX3qlwMl6Ceit1AL1dmCMS/sQZ3S",
+    "role": "admin",
+    "status": "active",
+    "createdAt": "2025-08-15T10:18:18.668Z"
+  }
+]

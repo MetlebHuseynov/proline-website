@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "productId": 10,
+    "order": 1,
+    "createdAt": "2025-08-15T10:17:26.659Z",
+    "updatedAt": "2025-08-15T10:17:26.659Z"
+  },
+  {
+    "id": 2,
+    "productId": 9,
+    "order": 2,
+    "createdAt": "2025-08-15T10:17:26.659Z",
+    "updatedAt": "2025-08-15T10:17:26.659Z"
+  },
+  {
+    "id": 3,
+    "productId": 8,
+    "order": 3,
+    "createdAt": "2025-08-15T10:17:26.659Z",
+    "updatedAt": "2025-08-15T10:17:26.659Z"
+  },
+  {
+    "id": 4,
+    "productId": 7,
+    "order": 4,
+    "createdAt": "2025-08-15T10:17:26.659Z",
+    "updatedAt": "2025-08-15T10:17:26.659Z"
+  }
+]

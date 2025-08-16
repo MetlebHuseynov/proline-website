@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
+  <defs>
+    <linearGradient id="rebarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="300" height="200" fill="#f8fafc"/>
+  <rect x="40" y="60" width="12" height="120" fill="url(#rebarGrad)" stroke="#d97706" stroke-width="1"/>
+  <rect x="70" y="50" width="12" height="140" fill="url(#rebarGrad)" stroke="#d97706" stroke-width="1"/>
+  <rect x="100" y="40" width="12" height="160" fill="url(#rebarGrad)" stroke="#d97706" stroke-width="1"/>
+  <rect x="130" y="45" width="12" height="150" fill="url(#rebarGrad)" stroke="#d97706" stroke-width="1"/>
+  <rect x="160" y="55" width="12" height="130" fill="url(#rebarGrad)" stroke="#d97706" stroke-width="1"/>
+  <rect x="190" y="50" width="12" height="140" fill="url(#rebarGrad)" stroke="#d97706" stroke-width="1"/>
+  <rect x="220" y="60" width="12" height="120" fill="url(#rebarGrad)" stroke="#d97706" stroke-width="1"/>
+  <rect x="250" y="65" width="12" height="110" fill="url(#rebarGrad)" stroke="#d97706" stroke-width="1"/>
+  <text x="150" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#475569">İnşaat Demiri</text>
+</svg>

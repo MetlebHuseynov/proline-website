@@ -1,0 +1,39 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="400" rx="10" fill="#f5f7fa"/>
+  
+  <!-- Building/Construction Illustration -->
+  <rect x="100" y="150" width="400" height="200" fill="#e9ecef"/>
+  
+  <!-- Building Structure -->
+  <rect x="150" y="100" width="300" height="250" fill="#dee2e6"/>
+  
+  <!-- Windows -->
+  <rect x="180" y="130" width="50" height="50" fill="#adb5bd"/>
+  <rect x="250" y="130" width="50" height="50" fill="#adb5bd"/>
+  <rect x="320" y="130" width="50" height="50" fill="#adb5bd"/>
+  
+  <rect x="180" y="200" width="50" height="50" fill="#adb5bd"/>
+  <rect x="250" y="200" width="50" height="50" fill="#adb5bd"/>
+  <rect x="320" y="200" width="50" height="50" fill="#adb5bd"/>
+  
+  <!-- Door -->
+  <rect x="250" y="270" width="50" height="80" fill="#6c757d"/>
+  
+  <!-- Roof -->
+  <polygon points="150,100 300,50 450,100" fill="#0d6efd"/>
+  
+  <!-- Construction Materials -->
+  <rect x="50" y="300" width="60" height="30" fill="#ffc107"/>
+  <rect x="50" y="330" width="60" height="20" fill="#ffc107"/>
+  
+  <rect x="490" y="300" width="60" height="30" fill="#ffc107"/>
+  <rect x="490" y="330" width="60" height="20" fill="#ffc107"/>
+  
+  <!-- Crane -->
+  <line x1="500" y1="50" x2="500" y2="250" stroke="#495057" stroke-width="10"/>
+  <line x1="500" y1="50" x2="400" y2="50" stroke="#495057" stroke-width="10"/>
+  <line x1="400" y1="50" x2="400" y2="80" stroke="#495057" stroke-width="5"/>
+  
+  <!-- Text -->
+  <text x="300" y="380" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#212529">Quality Construction Materials</text>
+</svg>

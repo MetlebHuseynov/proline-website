@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "name": "AzCement",
+    "description": "Azərbaycanın aparıcı çimento və beton istehsalçısı",
+    "logo": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400",
+    "website": "https://azconstruction.az",
+    "productCount": 2,
+    "status": "active",
+    "createdAt": "2024-01-05T09:15:00Z",
+    "updatedAt": "2024-01-05T09:15:00Z"
+  },
+  {
+    "id": 2,
+    "name": "MetalPro",
+    "description": "Yüksek keyfiyyətli armatur və metal konstruksiyalar",
+    "logo": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400",
+    "website": "https://metalpro.az",
+    "productCount": 1,
+    "status": "active",
+    "createdAt": "2024-01-06T10:30:00Z",
+    "updatedAt": "2024-01-06T10:30:00Z"
+  },
+  {
+    "id": 3,
+    "name": "BrickMaster",
+    "description": "Ənənəvi və müasir kərpic və blok istehsalçısı",
+    "logo": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
+    "website": "https://brickmaster.az",
+    "productCount": 1,
+    "status": "active",
+    "createdAt": "2024-01-07T11:45:00Z",
+    "updatedAt": "2024-01-07T11:45:00Z"
+  },
+  {
+    "id": 4,
+    "name": "WeldTech",
+    "description": "Peşəkar qaynaq materialları və avadanlıqları",
+    "logo": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400",
+    "website": "https://weldtech.az",
+    "productCount": 1,
+    "status": "active",
+    "createdAt": "2024-01-08T12:00:00Z",
+    "updatedAt": "2024-01-08T12:00:00Z"
+  },
+  {
+    "id": 5,
+    "name": "CeramicArt",
+    "description": "Premium keramik kafel və mozaika istehsalçısı",
+    "logo": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
+    "website": "https://ceramicart.az",
+    "productCount": 1,
+    "status": "active",
+    "createdAt": "2024-01-09T13:15:00Z",
+    "updatedAt": "2024-01-09T13:15:00Z"
+  },
+  {
+    "id": 6,
+    "name": "ThermoIso",
+    "description": "İstilik və səs izolyasiyası həlləri",
+    "logo": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400",
+    "website": "https://thermoiso.az",
+    "productCount": 1,
+    "status": "active",
+    "createdAt": "2024-01-10T14:30:00Z",
+    "updatedAt": "2024-01-10T14:30:00Z"
+  },
+  {
+    "id": 7,
+    "name": "AluSystem",
+    "description": "Müasir alüminium profil sistemləri",
+    "logo": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400",
+    "website": "https://alusystem.az",
+    "productCount": 1,
+    "status": "active",
+    "createdAt": "2024-01-11T15:45:00Z",
+    "updatedAt": "2024-01-11T15:45:00Z"
+  }
+]

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Əlaqə - ProLine Construction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/">ProLine Construction</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Ana Səhifə</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/products.html">Məhsullar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/brands.html">Markalar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about.html">Haqqımızda</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/contact.html">Əlaqə</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        <a href="/admin/login.html" class="btn btn-outline-light me-2">Admin Girişi</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1>Bizimlə Əlaqə</h1>
+                    <p class="lead">İnşaat materialları ehtiyaclarınız üçün buradayıq</p>
+                </div>
+                <div class="col-md-6">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-md-end mb-0">
+                            <li class="breadcrumb-item"><a href="/">Ana Səhifə</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Əlaqə</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Information -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="contact-info-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h4>Bizim Ünvan</h4>
+                        <p>123 Construction Ave<br>Baku, Azerbaijan</p>
+                        <a href="https://maps.google.com" target="_blank" class="btn btn-outline-primary btn-sm">Xəritədə Bax</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="contact-info-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <h4>Telefon Nömrələri</h4>
+                        <p>Baş Ofis: +994 12 345 6789<br>Müştəri Xidməti: +994 12 345 6780</p>
+                        <p class="text-muted small">Bazar ertəsi - Cümə: 9:00 - 18:00<br>Şənbə: 10:00 - 16:00</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="contact-info-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h4>Bizə Yazın</h4>
+                        <p>Ümumi Sorğular: <a href="mailto:info@proline.az">info@proline.az</a></p>
+                <p>Müştəri Dəstəyi: <a href="mailto:support@proline.az">support@proline.az</a></p>
+                <p>Satış Şöbəsi: <a href="mailto:sales@proline.az">sales@proline.az</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form and Map -->
+            <div class="row">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h3 class="mb-4">Bizə Mesaj Göndərin</h3>
+                            <form id="contact-form">
+                                <div class="alert alert-success d-none" id="form-success">
+                                    Mesajınız uğurla göndərildi. Tezliklə sizinlə əlaqə saxlayacağıq!
+                                </div>
+                                <div class="alert alert-danger d-none" id="form-error">
+                                    Mesajınızı göndərərkən xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.
+                                </div>
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Adınız</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">E-poçt Ünvanı</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Telefon Nömrəsi</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Mövzu</label>
+                                    <select class="form-select" id="subject" name="subject" required>
+                                        <option value="" selected disabled>Mövzu seçin</option>
+                                        <option value="General Inquiry">Ümumi Sorğu</option>
+                                        <option value="Product Information">Məhsul Məlumatı</option>
+                                        <option value="Order Status">Sifariş Statusu</option>
+                                        <option value="Technical Support">Texniki Dəstək</option>
+                                        <option value="Feedback">Rəy</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">Mesajınız</label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Mesaj Göndər</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <h3 class="mb-4">Bizim Filiallar</h3>
+                            <div class="ratio ratio-16x9 mb-4">
+                                <!-- Placeholder for map iframe -->
+                                <div class="bg-light d-flex align-items-center justify-content-center">
+                                    <div class="text-center">
+                                        <i class="fas fa-map-marked-alt fa-4x text-muted mb-3"></i>
+                                        <p class="mb-0">Xəritə burada göstəriləcək</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <h5>Bizim Filiallar</h5>
+                            <div class="accordion" id="branchesAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#bakuBranch">
+                                            Baku (Main Office)
+                                        </button>
+                                    </h2>
+                                    <div id="bakuBranch" class="accordion-collapse collapse show" data-bs-parent="#branchesAccordion">
+                                        <div class="accordion-body">
+                                            <p><i class="fas fa-map-marker-alt me-2"></i> 123 Construction Ave, Baku</p>
+                                            <p><i class="fas fa-phone me-2"></i> +994 12 345 6789</p>
+                                            <p><i class="fas fa-clock me-2"></i> B.e-Cümə: 9:00-18:00, Şənbə: 10:00-16:00</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ganjaBranch">
+                                            Gəncə Filialı
+                                        </button>
+                                    </h2>
+                                    <div id="ganjaBranch" class="accordion-collapse collapse" data-bs-parent="#branchesAccordion">
+                                        <div class="accordion-body">
+                                            <p><i class="fas fa-map-marker-alt me-2"></i> 45 Builders St, Ganja</p>
+                                            <p><i class="fas fa-phone me-2"></i> +994 22 345 6789</p>
+                                            <p><i class="fas fa-clock me-2"></i> B.e-Cümə: 9:00-18:00, Şənbə: 10:00-16:00</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sumgaitBranch">
+                                            Sumqayıt Filialı
+                                        </button>
+                                    </h2>
+                                    <div id="sumgaitBranch" class="accordion-collapse collapse" data-bs-parent="#branchesAccordion">
+                                        <div class="accordion-body">
+                                            <p><i class="fas fa-map-marker-alt me-2"></i> 78 Industrial Blvd, Sumgait</p>
+                                            <p><i class="fas fa-phone me-2"></i> +994 18 345 6789</p>
+                                            <p><i class="fas fa-clock me-2"></i> Mon-Fri: 9AM-6PM, Sat: 10AM-4PM</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">Tez-tez Verilən Suallar</h2>
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    Çatdırılma xidməti təklif edirsinizmi?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Bəli, biz bütün Azərbaycan ərazisində çatdırılma xidməti təklif edirik. Çatdırılma haqqı məkan və sifariş həcmindən asılıdır. Böyük sifarişlər üçün şəhər daxilində pulsuz çatdırılma təmin edirik. Xüsusi çatdırılma məlumatları üçün müştəri xidmətimizlə əlaqə saxlayın.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    Qaytarma siyasətiniz necədir?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    İstifadə edilməmiş və zədələnməmiş məhsulları alışdan 14 gün ərzində qaytarmağı qəbul edirik. Xüsusi sifariş edilmiş materiallar qüsurlu olmadıqca qaytarıla bilməz. Bütün qaytarmalar və dəyişikliklər üçün qəbzinizi saxlayın.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Məhsullar üçün texniki dəstək təmin edirsinizmi?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Bəli, bizim texniki komandamız məhsul seçimi, quraşdırılma və istifadə ilə bağlı məsləhət vermək üçün hazırdır. Mürəkkəb layihələr üçün mütəxəssislərimizlə yerində məsləhətləşmə təşkil edə bilərik.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    Kommersiya layihələri üçün toplu sifariş verə bilərəmmi?
+                                </button>
+                            </h2>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Mütləq! Biz kommersiya və böyük miqyaslı layihələr üçün material təchizatında ixtisaslaşırıq. Toplu sifarişlər üçün rəqabətli qiymətlər təklif edirik və layihə tələblərinizə əsasən fərdiləşdirilmiş paketlər yarada bilərik. Ətraflı məlumat üçün satış şöbəmizlə əlaqə saxlayın.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                    Sifarişimi necə izləyə bilərəm?
+                                </button>
+                            </h2>
+                            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Sifarişiniz emal edildikdən sonra izləmə məlumatları ilə təsdiq e-poçtu alacaqsınız. Həmçinin veb saytımızda hesabınıza daxil olaraq və ya sifariş nömrənizlə müştəri xidməti komandamızla əlaqə saxlayaraq sifarişinizi izləyə bilərsiniz.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>ProLine</h5>
+                    <p>Azərbaycanda keyfiyyətli tikinti materialları üçün etibarlı tərəfdaşınız.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Sürətli Keçidlər</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Ana Səhifə</a></li>
+                        <li><a href="/products.html" class="text-white">Məhsullar</a></li>
+                        <li><a href="/brands.html" class="text-white">Markalar</a></li>
+                        <li><a href="/about.html" class="text-white">Haqqımızda</a></li>
+                        <li><a href="/contact.html" class="text-white">Əlaqə</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Bizimlə Əlaqə</h5>
+                    <address>
+                        <p><i class="fas fa-map-marker-alt"></i> 123 Construction Ave, Baku, Azerbaijan</p>
+                        <p><i class="fas fa-phone"></i> +994 12 345 6789</p>
+                        <p><i class="fas fa-envelope"></i> info@proline.az</p>
+                    </address>
+                    <div class="social-icons">
+                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2023 ProLine. Bütün hüquqlar qorunur.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-3">Məxfilik Siyasəti</a>
+                    <a href="#" class="text-white">Xidmət Şərtləri</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/contact.js"></script>
+</body>
+</html>

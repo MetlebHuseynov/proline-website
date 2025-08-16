@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tənzimləmələr - ProLine Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin/dashboard.html" class="sidebar-brand">ProLine Admin</a>
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/admin/dashboard.html" class="sidebar-menu-item">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>İdarə Paneli</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/products.html" class="sidebar-menu-item">
+                        <i class="fas fa-box"></i>
+                        <span>Məhsullar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/categories.html" class="sidebar-menu-item">
+                        <i class="fas fa-tags"></i>
+                        <span>Kateqoriyalar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/brands.html" class="sidebar-menu-item">
+                        <i class="fas fa-building"></i>
+                        <span>Markalar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/featured-products.html" class="sidebar-menu-item">
+                        <i class="fas fa-star"></i>
+                        <span>Öndə Olan Məhsullar</span>
+                    </a>
+                </li>
+                <div class="sidebar-divider"></div>
+                <li>
+                    <a href="/admin/users.html" class="sidebar-menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>İstifadəçilər</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/settings.html" class="sidebar-menu-item active">
+                        <i class="fas fa-cog"></i>
+                        <span>Tənzimləmələr</span>
+                    </a>
+                </li>
+                <div class="sidebar-divider"></div>
+                <li>
+                    <a href="#" class="sidebar-menu-item" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Çıxış</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <button class="topbar-toggler" id="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="topbar-search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Tənzimləmələrdə axtar..." id="search-input">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="topbar-divider"></div>
+                <div class="topbar-user dropdown">
+                    <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <span class="topbar-user-name" id="user-name">Admin User</span>
+                        <img src="/images/user-placeholder.svg" alt="User" class="topbar-user-img">
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="/admin/profile.html"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Profil</a></li>
+                        <li><a class="dropdown-item" href="/admin/settings.html"><i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i> Tənzimləmələr</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="dropdown-logout-btn"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Çıxış</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Content Wrapper -->
+            <div class="content-wrapper">
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Tənzimləmələr</h1>
+                    </div>
+
+                    <!-- Alert Container -->
+                    <div id="alert-container"></div>
+
+                    <!-- Settings Cards -->
+                    <div class="row">
+                        <!-- General Settings Card -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        <i class="fas fa-cog"></i> Ümumi Tənzimləmələr
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="general-settings-form">
+                                        <div class="mb-3">
+                                            <label for="site-title" class="form-label">Sayt Başlığı</label>
+                                            <input type="text" class="form-control" id="site-title" name="siteTitle" value="Old Bridge">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="site-description" class="form-label">Sayt Təsviri</label>
+                                            <textarea class="form-control" id="site-description" name="siteDescription" rows="3">Keyfiyyətli tikinti materialları və avadanlıqları</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="contact-email" class="form-label">Əlaqə Email</label>
+                                            <input type="email" class="form-control" id="contact-email" name="contactEmail" value="info@proline.az">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="contact-phone" class="form-label">Əlaqə Telefonu</label>
+                                            <input type="tel" class="form-control" id="contact-phone" name="contactPhone" value="+994 12 345 67 89">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Saxla
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings Card -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        <i class="fas fa-shield-alt"></i> Təhlükəsizlik Tənzimləmələri
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="security-settings-form">
+                                        <div class="mb-3">
+                                            <label for="session-timeout" class="form-label">Sessiya Müddəti (dəqiqə)</label>
+                                            <input type="number" class="form-control" id="session-timeout" name="sessionTimeout" value="60" min="5" max="1440">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="max-login-attempts" class="form-label">Maksimum Giriş Cəhdi</label>
+                                            <input type="number" class="form-control" id="max-login-attempts" name="maxLoginAttempts" value="5" min="3" max="10">
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="require-strong-password" name="requireStrongPassword" checked>
+                                                <label class="form-check-label" for="require-strong-password">
+                                                    Güclü şifrə tələb et
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="enable-two-factor" name="enableTwoFactor">
+                                                <label class="form-check-label" for="enable-two-factor">
+                                                    İki faktorlu doğrulama (2FA)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Saxla
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Settings Card -->
+                    <div class="row">
+                        <div class="col-lg-12 mb-4">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        <i class="fas fa-envelope"></i> Email Tənzimləmələri
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="email-settings-form">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="smtp-host" class="form-label">SMTP Host</label>
+                                                    <input type="text" class="form-control" id="smtp-host" name="smtpHost" placeholder="smtp.gmail.com">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="mb-3">
+                                                    <label for="smtp-port" class="form-label">SMTP Port</label>
+                                                    <input type="number" class="form-control" id="smtp-port" name="smtpPort" value="587">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="mb-3">
+                                                    <label for="smtp-security" class="form-label">Təhlükəsizlik</label>
+                                                    <select class="form-select" id="smtp-security" name="smtpSecurity">
+                                                        <option value="tls">TLS</option>
+                                                        <option value="ssl">SSL</option>
+                                                        <option value="none">Yoxdur</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="smtp-username" class="form-label">SMTP İstifadəçi adı</label>
+                                                    <input type="text" class="form-control" id="smtp-username" name="smtpUsername">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="smtp-password" class="form-label">SMTP Şifrə</label>
+                                                    <input type="password" class="form-control" id="smtp-password" name="smtpPassword">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="from-email" class="form-label">Göndərən Email</label>
+                                            <input type="email" class="form-control" id="from-email" name="fromEmail" placeholder="noreply@proline.az">
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-secondary" id="test-email-btn">
+                                                <i class="fas fa-paper-plane"></i> Test Et
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save"></i> Saxla
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Backup Settings Card -->
+                    <div class="row">
+                        <div class="col-lg-12 mb-4">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        <i class="fas fa-database"></i> Yedəkləmə Tənzimləmələri
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="backup-info">
+                                                <p class="mb-2"><strong>Son yedəkləmə:</strong> <span id="last-backup" class="text-muted">Heç vaxt</span></p>
+                                                <p class="mb-0"><strong>Yedək faylların sayı:</strong> <span id="backup-count" class="text-muted">0</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex gap-2 flex-wrap">
+                                                <button class="btn btn-primary" id="create-backup-btn">
+                                                    <i class="fas fa-download"></i> Yedək Yarat
+                                                </button>
+                                                <button class="btn btn-secondary" id="download-backup-btn">
+                                                    <i class="fas fa-file-download"></i> Yedək Yüklə
+                                                </button>
+                                                <button class="btn btn-warning" id="restore-backup-btn">
+                                                    <i class="fas fa-upload"></i> Yedəkdən Bərpa Et
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <form id="backup-settings-form">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" id="auto-backup" name="autoBackup">
+                                                        <label class="form-check-label" for="auto-backup">
+                                                            Avtomatik yedəkləmə
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="backup-frequency" class="form-label">Yedəkləmə tezliyi</label>
+                                                    <select class="form-select" id="backup-frequency" name="backupFrequency">
+                                                        <option value="daily">Gündəlik</option>
+                                                        <option value="weekly">Həftəlik</option>
+                                                        <option value="monthly">Aylıq</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="backup-retention" class="form-label">Yedək saxlama müddəti (gün)</label>
+                                                    <input type="number" class="form-control" id="backup-retention" name="backupRetention" value="30" min="1" max="365">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Saxla
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Information Card -->
+                    <div class="row">
+                        <div class="col-lg-12 mb-4">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        <i class="fas fa-info-circle"></i> Sistem Məlumatları
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <strong>Sistem Versiyası:</strong>
+                                                <span class="text-muted ms-2">1.0.0</span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Node.js Versiyası:</strong>
+                                                <span id="node-version" class="text-muted ms-2">-</span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Yaddaş İstifadəsi:</strong>
+                                                <span id="memory-usage" class="text-muted ms-2">-</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <strong>Disk Sahəsi:</strong>
+                                                <span id="disk-space" class="text-muted ms-2">-</span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Server Vaxtı:</strong>
+                                                <span id="server-time" class="text-muted ms-2">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-secondary" id="refresh-info-btn">
+                                        <i class="fas fa-sync-alt"></i> Yenilə
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="loading hidden">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Yüklənir...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/admin/main.js"></script>
+    <script src="/js/admin/settings.js"></script>
+</body>
+</html>

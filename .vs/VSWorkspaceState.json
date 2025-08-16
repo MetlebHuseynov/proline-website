@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\controllers",
+    "\\middleware",
+    "\\models",
+    "\\public",
+    "\\public\\admin",
+    "\\public\\css",
+    "\\public\\images"
+  ],
+  "SelectedNode": "\\public\\index.html",
+  "PreviewInSolutionExplorer": false
+}

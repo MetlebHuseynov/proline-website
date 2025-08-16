@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Test Login</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="alert-container"></div>
+                        <form id="login-form">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" value="admin@example.com" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Şifrə</label>
+                                <input type="password" class="form-control" id="password" value="admin123" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Daxil Ol</button>
+                        </form>
+                        <hr>
+                        <div class="mt-3">
+                            <h6>Token Status:</h6>
+                            <div id="token-status"></div>
+                            <button class="btn btn-secondary btn-sm mt-2" onclick="checkToken()">Token Yoxla</button>
+                            <a href="/admin/users.html" class="btn btn-success btn-sm mt-2">Users Səhifəsinə Get</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const showAlert = (message, type = 'danger') => {
+            const alertContainer = document.getElementById('alert-container');
+            if (!alertContainer) return;
+
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alert);
+
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        };
+
+        const checkToken = () => {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const tokenStatus = document.getElementById('token-status');
+            
+            if (token) {
+                tokenStatus.innerHTML = `<div class="alert alert-success">Token mövcuddur: ${token.substring(0, 20)}...</div>`;
+            } else {
+                tokenStatus.innerHTML = `<div class="alert alert-warning">Token tapılmadı</div>`;
+            }
+        };
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                console.log('Login response:', data);
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showAlert('Uğurla daxil oldunuz!', 'success');
+                    checkToken();
+                } else {
+                    showAlert(data.message || 'Giriş uğursuz oldu', 'danger');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Xəta baş verdi: ' + error.message, 'danger');
+            }
+        });
+
+        // Check token on page load
+        checkToken();
+    </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="400" rx="10" fill="#f5f7fa"/>
+  
+  <!-- Company Building -->
+  <rect x="150" y="100" width="300" height="200" fill="#dee2e6"/>
+  
+  <!-- Windows -->
+  <rect x="180" y="130" width="40" height="40" fill="#adb5bd"/>
+  <rect x="240" y="130" width="40" height="40" fill="#adb5bd"/>
+  <rect x="300" y="130" width="40" height="40" fill="#adb5bd"/>
+  <rect x="360" y="130" width="40" height="40" fill="#adb5bd"/>
+  
+  <rect x="180" y="190" width="40" height="40" fill="#adb5bd"/>
+  <rect x="240" y="190" width="40" height="40" fill="#adb5bd"/>
+  <rect x="300" y="190" width="40" height="40" fill="#adb5bd"/>
+  <rect x="360" y="190" width="40" height="40" fill="#adb5bd"/>
+  
+  <!-- Door -->
+  <rect x="270" y="250" width="60" height="50" fill="#6c757d"/>
+  
+  <!-- Company Sign -->
+  <rect x="200" y="70" width="200" height="40" rx="5" fill="#0d6efd"/>
+  <text x="300" y="95" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">ProLine</text>
+  
+  <!-- People -->
+  <circle cx="150" cy="320" r="20" fill="#6c757d"/>
+  <rect x="140" y="340" width="20" height="40" fill="#6c757d"/>
+  
+  <circle cx="200" cy="320" r="20" fill="#6c757d"/>
+  <rect x="190" y="340" width="20" height="40" fill="#6c757d"/>
+  
+  <circle cx="250" cy="320" r="20" fill="#6c757d"/>
+  <rect x="240" y="340" width="20" height="40" fill="#6c757d"/>
+  
+  <!-- Construction Materials -->
+  <rect x="350" y="300" width="60" height="30" fill="#ffc107"/>
+  <rect x="350" y="330" width="60" height="20" fill="#ffc107"/>
+  
+  <rect x="430" y="300" width="60" height="30" fill="#ffc107"/>
+  <rect x="430" y="330" width="60" height="20" fill="#ffc107"/>
+  
+  <!-- Trees -->
+  <circle cx="100" cy="250" r="30" fill="#198754"/>
+  <rect x="95" y="250" width="10" height="50" fill="#6c757d"/>
+  
+  <circle cx="500" cy="250" r="30" fill="#198754"/>
+  <rect x="495" y="250" width="10" height="50" fill="#6c757d"/>
+  
+  <!-- Text -->
+  <text x="300" y="380" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#212529">About OldBridge</text>
+</svg>

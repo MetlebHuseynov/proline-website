@@ -1,0 +1,20 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" fill="#f8f9fa"/>
+  
+  <!-- Product Box -->
+  <rect x="75" y="75" width="150" height="150" fill="#e9ecef" stroke="#dee2e6" stroke-width="2"/>
+  
+  <!-- Box Details -->
+  <line x1="75" y1="75" x2="225" y2="225" stroke="#dee2e6" stroke-width="1"/>
+  <line x1="225" y1="75" x2="75" y2="225" stroke="#dee2e6" stroke-width="1"/>
+  
+  <!-- Product Icon -->
+  <rect x="125" y="125" width="50" height="50" fill="#adb5bd"/>
+  
+  <!-- Text -->
+  <text x="150" y="250" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#6c757d">Product Image</text>
+  
+  <!-- Camera Icon -->
+  <circle cx="150" cy="100" r="15" fill="#6c757d"/>
+  <rect x="145" y="85" width="10" height="5" fill="#6c757d"/>
+</svg>
