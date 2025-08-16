@@ -45,7 +45,7 @@ exports.protect = async (req, res, next) => {
 
   try {
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'oldbridge_secret_key_2024');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'proline_secret_key_2024');
     console.log('Decoded token:', decoded);
 
     // Find user in PostgreSQL database

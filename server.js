@@ -5,7 +5,7 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
-const { handleWebhook, getWebhookStatus } = require('./webhook-handler');
+
 const { pool } = require('./config/pool');
 require('dotenv').config();
 
@@ -238,7 +238,7 @@ const migratePostgreSQLDataFromJSON = async () => {
 };
 
 // JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'oldbridge_secret_key_2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'proline_secret_key_2024';
 
 // Auth middleware
 const authenticateToken = (req, res, next) => {
@@ -933,23 +933,7 @@ app.delete('/api/users/:id', authenticateToken, async (req, res) => {
 const featuredProductRoutes = require('./routes/featuredProductRoutes');
 app.use('/api/featured-products', featuredProductRoutes);
 
-// GitHub Webhook endpoint
-app.post('/webhook', express.raw({type: 'application/json'}), handleWebhook);
 
-// Webhook status endpoint
-app.get('/api/webhook/status', authenticateToken, (req, res) => {
-  try {
-    const status = getWebhookStatus();
-    res.json({
-      message: 'GitHub App webhook status',
-      status: status,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('Webhook status error:', error);
-    res.status(500).json({ message: 'Webhook status alınarkən xəta baş verdi' });
-  }
-});
 
 // Dashboard stats
 app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
