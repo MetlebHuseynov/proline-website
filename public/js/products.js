@@ -55,13 +55,23 @@ function getUrlParams() {
 // Load all products
 async function loadProducts() {
     try {
-        const response = await fetch(PRODUCTS_URL);
+        console.log('Loading products from:', PRODUCTS_URL);
+        const response = await fetch(PRODUCTS_URL, {
+            cache: 'no-cache',
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        });
         
         if (!response.ok) {
             throw new Error('Failed to load products');
         }
         
         allProducts = await response.json();
+        console.log('Loaded products count:', allProducts.length);
+        console.log('Products data:', allProducts);
         
         // Check for URL parameters
         const params = getUrlParams();

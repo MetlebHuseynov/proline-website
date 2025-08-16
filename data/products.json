@@ -34,5 +34,17 @@
     "image": "/uploads/imageFile-1755338270374-508716740.png",
     "status": "active",
     "createdAt": "2025-08-16T09:57:50.376Z"
+  },
+  {
+    "id": 16,
+    "name": "qwert",
+    "price": 12345,
+    "description": "asdfgbhn",
+    "stock": 12,
+    "categoryId": 2,
+    "brandId": 3,
+    "image": "/uploads/imageFile-1755338729242-898601191.jpg",
+    "status": "active",
+    "createdAt": "2025-08-16T10:05:29.247Z"
   }
 ]
