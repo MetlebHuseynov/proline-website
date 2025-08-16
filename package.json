@@ -7,8 +7,7 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "production": "NODE_ENV=production node server.js",
-    "build": "npm install && npm rebuild bcrypt --build-from-source",
-    "postinstall": "npm rebuild bcrypt --build-from-source",
+    "build": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
