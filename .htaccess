@@ -1,0 +1,156 @@
+# Old Bridge Production .htaccess Configuration
+# Bu fayl Hostinger serverində /public_html/ qovluğuna yerləşdirilməlidir
+
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Force HTTPS (SSL)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Remove www from domain (optional)
+# RewriteCond %{HTTP_HOST} ^www\.(.+) [NC]
+# RewriteRule ^(.*)$ https://%1%{REQUEST_URI} [R=301,L]
+
+# Node.js Application Routing
+# Redirect all requests to Node.js server except static files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ /server.js [L]
+
+# Static Files Caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Images
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    
+    # CSS and JavaScript
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    
+    # Fonts
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+    
+    # HTML
+    ExpiresByType text/html "access plus 1 hour"
+</IfModule>
+
+# Gzip Compression
+<IfModule mod_deflate.c>
+    # Compress HTML, CSS, JavaScript, Text, XML and fonts
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+    AddOutputFilterByType DEFLATE application/x-font
+    AddOutputFilterByType DEFLATE application/x-font-opentype
+    AddOutputFilterByType DEFLATE application/x-font-otf
+    AddOutputFilterByType DEFLATE application/x-font-truetype
+    AddOutputFilterByType DEFLATE application/x-font-ttf
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE font/opentype
+    AddOutputFilterByType DEFLATE font/otf
+    AddOutputFilterByType DEFLATE font/ttf
+    AddOutputFilterByType DEFLATE image/svg+xml
+    AddOutputFilterByType DEFLATE image/x-icon
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/xml
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    # X-Frame-Options
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # X-Content-Type-Options
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # X-XSS-Protection
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content Security Policy (adjust as needed)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
+</IfModule>
+
+# Prevent access to sensitive files
+<FilesMatch "\.(env|json|log|sh|sql|md)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Prevent access to node_modules
+RewriteRule ^node_modules/ - [F,L]
+
+# Prevent access to .git directory
+RewriteRule ^\.git/ - [F,L]
+
+# Custom Error Pages (optional)
+# ErrorDocument 404 /404.html
+# ErrorDocument 500 /500.html
+
+# File Upload Security
+<FilesMatch "\.(php|phtml|php3|php4|php5|pl|py|jsp|asp|sh|cgi)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Allow specific file types in uploads directory
+<Directory "public/uploads">
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|pdf|doc|docx|xls|xlsx)$">
+        Order Allow,Deny
+        Allow from all
+    </FilesMatch>
+</Directory>
+
+# Disable server signature
+ServerSignature Off
+
+# Disable directory browsing
+Options -Indexes
+
+# Set default charset
+AddDefaultCharset UTF-8
+
+# MIME Types for modern web
+AddType application/javascript .js
+AddType text/css .css
+AddType image/svg+xml .svg
+AddType font/woff .woff
+AddType font/woff2 .woff2
+
+# Performance optimizations
+<IfModule mod_headers.c>
+    # Remove ETags
+    Header unset ETag
+    FileETag None
+    
+    # Cache static resources
+    <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>
+
+# Redirect old URLs (if needed)
+# Redirect 301 /old-page /new-page
+
+# Custom redirects for SEO
+# RewriteRule ^products/(.*)$ /mehsullar/$1 [R=301,L]
+# RewriteRule ^about$ /haqqimizda [R=301,L]

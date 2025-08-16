@@ -6,17 +6,23 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 const sql = require('mssql');
+const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
+const { handleWebhook, getWebhookStatus } = require('./webhook-handler');
 require('dotenv').config();
 
-// MSSQL Database Configuration
-const dbConfig = {
+// Database Configuration - supports MSSQL, MySQL, and PostgreSQL
+const dbType = process.env.DB_TYPE || 'mssql';
+
+// MSSQL Configuration
+const mssqlConfig = {
     server: process.env.DB_SERVER || 'localhost',
     database: process.env.DB_NAME || 'OldBridgeDB',
     user: process.env.DB_USER || 'sa',
     password: process.env.DB_PASSWORD || 'your_password',
     options: {
-        encrypt: false, // Use true for Azure
-        trustServerCertificate: true // Use true for local dev / self-signed certs
+        encrypt: false,
+        trustServerCertificate: true
     },
     pool: {
         max: 10,
@@ -25,19 +31,76 @@ const dbConfig = {
     }
 };
 
+// MySQL Configuration
+const mysqlConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'oldbridge',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+};
+
+// PostgreSQL Configuration
+const postgresConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 5432,
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'proline',
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000
+};
+
 // Database connection
 let dbPool;
+let mysqlPool;
+let postgresPool;
 
 const initializeDatabase = async () => {
     try {
-        dbPool = await sql.connect(dbConfig);
-        console.log('MSSQL data bazasına uğurla bağlandı');
-        
-        // Create tables if they don't exist
-        await createTables();
-        
-        // Migrate data from JSON files if tables are empty
-        await migrateDataFromJSON();
+        if (dbType === 'mysql') {
+            mysqlPool = mysql.createPool(mysqlConfig);
+            // Test connection
+            const connection = await mysqlPool.getConnection();
+            await connection.ping();
+            connection.release();
+            console.log('MySQL data bazasına uğurla bağlandı');
+            
+            // Create tables if they don't exist
+            await createMySQLTables();
+            
+            // Migrate data from JSON files if tables are empty
+            await migrateMySQLDataFromJSON();
+            
+        } else if (dbType === 'postgresql') {
+            postgresPool = new Pool(postgresConfig);
+            // Test connection
+            const client = await postgresPool.connect();
+            await client.query('SELECT NOW()');
+            client.release();
+            console.log('PostgreSQL data bazasına uğurla bağlandı');
+            
+            // Create tables if they don't exist
+            await createPostgreSQLTables();
+            
+            // Migrate data from JSON files if tables are empty
+            await migratePostgreSQLDataFromJSON();
+            
+        } else {
+            dbPool = await sql.connect(mssqlConfig);
+            console.log('MSSQL data bazasına uğurla bağlandı');
+            
+            // Create tables if they don't exist
+            await createTables();
+            
+            // Migrate data from JSON files if tables are empty
+            await migrateDataFromJSON();
+        }
         
     } catch (error) {
         console.error('Data bazası bağlantı xətası:', error);
@@ -231,6 +294,157 @@ const migrateDataFromJSON = async () => {
         
     } catch (error) {
         console.error('Data köçürmə xətası:', error);
+    }
+};
+
+// MySQL table creation functions
+const createMySQLTables = async () => {
+    try {
+        const connection = await mysqlPool.getConnection();
+        
+        // Create Categories table
+        await connection.execute(`
+            CREATE TABLE IF NOT EXISTS categories (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Create Brands table
+        await connection.execute(`
+            CREATE TABLE IF NOT EXISTS brands (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                description TEXT,
+                logo VARCHAR(255),
+                website VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Create Products table
+        await connection.execute(`
+            CREATE TABLE IF NOT EXISTS products (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                description TEXT,
+                price DECIMAL(10,2) NOT NULL,
+                category VARCHAR(100),
+                brand VARCHAR(100),
+                image VARCHAR(255),
+                stock INT DEFAULT 0,
+                sku VARCHAR(100),
+                weight DECIMAL(8,2),
+                status VARCHAR(50) DEFAULT 'active',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Create Users table
+        await connection.execute(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(100) UNIQUE,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                name VARCHAR(255),
+                role ENUM('admin', 'user') DEFAULT 'user',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Create Featured Products table
+        await connection.execute(`
+            CREATE TABLE IF NOT EXISTS featured_products (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                product_id INT,
+                order_index INT DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+            )
+        `);
+        
+        connection.release();
+        console.log('MySQL cədvəlləri uğurla yaradıldı');
+    } catch (error) {
+        console.error('MySQL cədvəl yaratma xətası:', error);
+    }
+};
+
+// MySQL data migration
+const migrateMySQLDataFromJSON = async () => {
+    try {
+        const connection = await mysqlPool.getConnection();
+        
+        // Check if tables are empty and migrate data
+        const [categoriesRows] = await connection.execute('SELECT COUNT(*) as count FROM categories');
+        if (categoriesRows[0].count === 0) {
+            const categories = readJSONFile('categories.json');
+            for (const category of categories) {
+                await connection.execute(
+                    'INSERT INTO categories (name, description) VALUES (?, ?)',
+                    [category.name, category.description || '']
+                );
+            }
+            console.log('Kateqoriyalar MySQL-ə köçürüldü');
+        }
+        
+        const [brandsRows] = await connection.execute('SELECT COUNT(*) as count FROM brands');
+        if (brandsRows[0].count === 0) {
+            const brands = readJSONFile('brands.json');
+            for (const brand of brands) {
+                await connection.execute(
+                    'INSERT INTO brands (name, description) VALUES (?, ?)',
+                    [brand.name, brand.description || '']
+                );
+            }
+            console.log('Brendlər MySQL-ə köçürüldü');
+        }
+        
+        const [productsRows] = await connection.execute('SELECT COUNT(*) as count FROM products');
+        if (productsRows[0].count === 0) {
+            const products = readJSONFile('products.json');
+            for (const product of products) {
+                await connection.execute(
+                    'INSERT INTO products (name, description, price, category, brand, image, stock, sku, weight, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [
+                        product.name,
+                        product.description || '',
+                        product.price,
+                        product.category || '',
+                        product.brand || '',
+                        product.image || '',
+                        product.stock || 0,
+                        product.sku || '',
+                        product.weight || 0,
+                        product.status || 'active'
+                    ]
+                );
+            }
+            console.log('Məhsullar MySQL-ə köçürüldü');
+        }
+        
+        const [usersRows] = await connection.execute('SELECT COUNT(*) as count FROM users');
+        if (usersRows[0].count === 0) {
+            const users = readJSONFile('users.json');
+            for (const user of users) {
+                await connection.execute(
+                    'INSERT INTO users (username, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
+                    [user.username || '', user.email, user.password, user.name || '', user.role || 'user']
+                );
+            }
+            console.log('İstifadəçilər MySQL-ə köçürüldü');
+        }
+        
+        connection.release();
+    } catch (error) {
+        console.error('MySQL data köçürmə xətası:', error);
     }
 };
 
@@ -911,6 +1125,24 @@ app.delete('/api/users/:id', authenticateToken, (req, res) => {
 // Featured Products Routes
 const featuredProductRoutes = require('./routes/featuredProductRoutes');
 app.use('/api/featured-products', featuredProductRoutes);
+
+// GitHub Webhook endpoint
+app.post('/webhook', express.raw({type: 'application/json'}), handleWebhook);
+
+// Webhook status endpoint
+app.get('/api/webhook/status', authenticateToken, (req, res) => {
+  try {
+    const status = getWebhookStatus();
+    res.json({
+      message: 'GitHub App webhook status',
+      status: status,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Webhook status error:', error);
+    res.status(500).json({ message: 'Webhook status alınarkən xəta baş verdi' });
+  }
+});
 
 // Dashboard stats
 app.get('/api/dashboard/stats', authenticateToken, (req, res) => {

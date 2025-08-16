@@ -1,0 +1,23 @@
+# Render deployment configuration
+services:
+  - type: web
+    name: proline-website
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        sync: false
+    healthCheckPath: /
+    autoDeploy: true
+    branch: main
+
+# Database configuration (PostgreSQL)
+databases:
+  - name: proline-db
+    plan: free
+    databaseName: proline
+    user: proline_user
