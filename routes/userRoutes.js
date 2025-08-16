@@ -2,7 +2,7 @@ const express = require('express');
 const { protect, admin } = require('../middleware/auth');
 const fs = require('fs');
 const path = require('path');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const router = express.Router();
 
