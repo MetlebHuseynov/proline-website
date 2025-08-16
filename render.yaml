@@ -4,7 +4,7 @@ services:
     name: proline-website
     env: node
     plan: free
-    buildCommand: npm install
+    buildCommand: npm install && npm rebuild bcrypt --build-from-source
     startCommand: npm start
     envVars:
       - key: NODE_ENV
