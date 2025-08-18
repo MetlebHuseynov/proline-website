@@ -1,30 +1,16 @@
 [
   {
     "id": 1,
-    "productId": 10,
+    "productId": 3,
     "order": 1,
-    "createdAt": "2025-08-15T10:17:26.659Z",
-    "updatedAt": "2025-08-15T10:17:26.659Z"
+    "createdAt": "2025-08-16T16:10:56.255Z",
+    "updatedAt": "2025-08-16T16:10:56.255Z"
   },
   {
     "id": 2,
-    "productId": 9,
+    "productId": 2,
     "order": 2,
-    "createdAt": "2025-08-15T10:17:26.659Z",
-    "updatedAt": "2025-08-15T10:17:26.659Z"
-  },
-  {
-    "id": 3,
-    "productId": 8,
-    "order": 3,
-    "createdAt": "2025-08-15T10:17:26.659Z",
-    "updatedAt": "2025-08-15T10:17:26.659Z"
-  },
-  {
-    "id": 4,
-    "productId": 7,
-    "order": 4,
-    "createdAt": "2025-08-15T10:17:26.659Z",
-    "updatedAt": "2025-08-15T10:17:26.659Z"
+    "createdAt": "2025-08-16T16:10:56.255Z",
+    "updatedAt": "2025-08-16T16:10:56.255Z"
   }
 ]

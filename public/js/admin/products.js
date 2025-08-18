@@ -6,7 +6,7 @@ class ProductsManager {
         this.apiUrl = isProduction ? 'https://proline-website.onrender.com/api' : 'http://localhost:3000/api';
         this.products = [];
         this.categories = [];
-        this.brands = [];
+        this.markas = [];
         this.currentProduct = null;
         this.modal = null;
         this.loggedInUser = null;
@@ -45,13 +45,13 @@ class ProductsManager {
         // Search and filter events
         const searchInput = document.getElementById('search-input');
         const categoryFilter = document.getElementById('category-filter');
-        const brandFilter = document.getElementById('brand-filter');
+        const markaFilter = document.getElementById('marka-filter');
         const statusFilter = document.getElementById('status-filter');
         const clearFiltersBtn = document.getElementById('clear-filters');
         
         if (searchInput) searchInput.addEventListener('input', () => this.filterProducts());
         if (categoryFilter) categoryFilter.addEventListener('change', () => this.filterProducts());
-        if (brandFilter) brandFilter.addEventListener('change', () => this.filterProducts());
+        if (markaFilter) markaFilter.addEventListener('change', () => this.filterProducts());
         if (statusFilter) statusFilter.addEventListener('change', () => this.filterProducts());
         if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', () => this.clearFilters());
     }
@@ -79,7 +79,7 @@ class ProductsManager {
             await Promise.all([
                 this.loadProducts(),
                 this.loadCategories(),
-                this.loadBrands()
+                this.loadMarkas()
             ]);
             this.populateFilters();
             this.renderProducts();
@@ -131,19 +131,19 @@ class ProductsManager {
         }
     }
 
-    async loadBrands() {
+    async loadMarkas() {
         try {
             const token = getAuthToken();
             const headers = {};
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
             }
-            const response = await fetch(`${this.apiUrl}/brands`, { headers });
-            if (!response.ok) throw new Error('Failed to load brands');
-            this.brands = await response.json();
+            const response = await fetch(`${this.apiUrl}/markas`, { headers });
+            if (!response.ok) throw new Error('Failed to load markas');
+            this.markas = await response.json();
         } catch (error) {
-            console.error('Error loading brands:', error);
-            this.brands = [];
+            console.error('Error loading markas:', error);
+            this.markas = [];
         }
     }
 
@@ -152,25 +152,37 @@ class ProductsManager {
         const categorySelect = document.getElementById('product-category');
         const categoryFilter = document.getElementById('category-filter');
         
-        categorySelect.innerHTML = '<option value="">Kateqoriya seçin</option>';
-        categoryFilter.innerHTML = '<option value="">Bütün kateqoriyalar</option>';
+        if (categorySelect) {
+            categorySelect.innerHTML = '<option value="">Kateqoriya seçin</option>';
+            this.categories.forEach(category => {
+                categorySelect.innerHTML += `<option value="${category.id}">${category.name}</option>`;
+            });
+        }
         
-        this.categories.forEach(category => {
-            categorySelect.innerHTML += `<option value="${category.id}">${category.name}</option>`;
-            categoryFilter.innerHTML += `<option value="${category.id}">${category.name}</option>`;
-        });
+        if (categoryFilter) {
+            categoryFilter.innerHTML = '<option value="">Bütün kateqoriyalar</option>';
+            this.categories.forEach(category => {
+                categoryFilter.innerHTML += `<option value="${category.id}">${category.name}</option>`;
+            });
+        }
 
-        // Populate brand filters
-        const brandSelect = document.getElementById('product-brand');
-        const brandFilter = document.getElementById('brand-filter');
+        // Populate marka filters
+        const markaSelect = document.getElementById('product-marka');
+        const markaFilter = document.getElementById('marka-filter');
         
-        brandSelect.innerHTML = '<option value="">Brend seçin</option>';
-        brandFilter.innerHTML = '<option value="">Bütün brendlər</option>';
+        if (markaSelect) {
+            markaSelect.innerHTML = '<option value="">Marka seçin</option>';
+            this.markas.forEach(marka => {
+                markaSelect.innerHTML += `<option value="${marka.id}">${marka.name}</option>`;
+            });
+        }
         
-        this.brands.forEach(brand => {
-            brandSelect.innerHTML += `<option value="${brand.id}">${brand.name}</option>`;
-            brandFilter.innerHTML += `<option value="${brand.id}">${brand.name}</option>`;
-        });
+        if (markaFilter) {
+            markaFilter.innerHTML = '<option value="">Bütün markalar</option>';
+            this.markas.forEach(marka => {
+                markaFilter.innerHTML += `<option value="${marka.id}">${marka.name}</option>`;
+            });
+        }
     }
 
     renderProducts() {
@@ -191,8 +203,9 @@ class ProductsManager {
         if (noData) noData.classList.add('d-none');
         
         tbody.innerHTML = this.products.map(product => {
-            const category = this.categories.find(c => c.name === product.category || c.id === product.categoryId);
-            const brand = this.brands.find(b => b.name === product.brand || b.id === product.brandId);
+            // API artıq kateqoriya və brend məlumatlarını obyekt şəklində qaytarır
+            const categoryName = product.category && typeof product.category === 'object' ? product.category.name : '-';
+            const markaName = product.marka && typeof product.marka === 'object' ? product.marka.name : '-';
             
             return `
                 <tr>
@@ -202,8 +215,8 @@ class ProductsManager {
                              alt="${product.name}" class="product-image">
                     </td>
                     <td>${product.name}</td>
-                    <td>${category ? category.name : '-'}</td>
-                    <td>${brand ? brand.name : '-'}</td>
+                    <td>${categoryName}</td>
+                    <td>${markaName}</td>
                     <td>${formatCurrency(product.price)}</td>
                     <td>${product.stock || 0}</td>
                     <td>
@@ -227,17 +240,22 @@ class ProductsManager {
     filterProducts() {
         const searchTerm = document.getElementById('search-input').value.toLowerCase();
         const categoryFilter = document.getElementById('category-filter').value;
-        const brandFilter = document.getElementById('brand-filter').value;
+        const markaFilter = document.getElementById('marka-filter').value;
         const statusFilter = document.getElementById('status-filter').value;
 
         const filteredProducts = this.products.filter(product => {
             const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
                                 (product.description && product.description.toLowerCase().includes(searchTerm));
-            const matchesCategory = !categoryFilter || product.categoryId == categoryFilter;
-            const matchesBrand = !brandFilter || product.brandId == brandFilter;
+            
+            // API artıq kateqoriya və brend məlumatlarını obyekt şəklində qaytarır
+            const productCategoryId = product.category && typeof product.category === 'object' ? product.category.id : product.categoryId;
+            const productMarkaId = product.marka && typeof product.marka === 'object' ? product.marka.id : product.markaId;
+            
+            const matchesCategory = !categoryFilter || productCategoryId == categoryFilter;
+            const matchesMarka = !markaFilter || productMarkaId == markaFilter;
             const matchesStatus = !statusFilter || product.status === statusFilter;
 
-            return matchesSearch && matchesCategory && matchesBrand && matchesStatus;
+            return matchesSearch && matchesCategory && matchesMarka && matchesStatus;
         });
 
         // Temporarily store filtered products for rendering
@@ -250,7 +268,7 @@ class ProductsManager {
     clearFilters() {
         document.getElementById('search-input').value = '';
         document.getElementById('category-filter').value = '';
-        document.getElementById('brand-filter').value = '';
+        document.getElementById('marka-filter').value = '';
         document.getElementById('status-filter').value = '';
         this.renderProducts();
     }
@@ -343,6 +361,9 @@ class ProductsManager {
         console.log('openModal called with product:', product);
         console.log('editingProductId set to:', this.editingProductId);
         
+        // Populate dropdowns before showing modal
+        this.populateFilters();
+        
         if (product) {
             title.textContent = 'Məhsulu Redaktə Et';
             this.populateForm(product);
@@ -386,12 +407,12 @@ class ProductsManager {
         document.getElementById('product-price').value = product.price || '';
         document.getElementById('product-stock').value = product.stock || '';
         
-        // Find category and brand IDs by name
-        const category = this.categories.find(c => c.name === product.category);
-        const brand = this.brands.find(b => b.name === product.brand);
+        // API artıq kateqoriya və marka məlumatlarını obyekt şəklində qaytarır
+        const categoryId = product.category && typeof product.category === 'object' ? product.category.id : (product.categoryId || '');
+        const markaId = product.marka && typeof product.marka === 'object' ? product.marka.id : (product.markaId || '');
         
-        document.getElementById('product-category').value = category ? category.id : (product.categoryId || '');
-        document.getElementById('product-brand').value = brand ? brand.id : (product.brandId || '');
+        document.getElementById('product-category').value = categoryId;
+        document.getElementById('product-marka').value = markaId;
         document.getElementById('product-status').value = product.status || 'active';
         
         // Handle image field
@@ -430,7 +451,7 @@ class ProductsManager {
         formData.append('description', form.description.value);
         formData.append('stock', form.stock.value);
         formData.append('categoryId', form.categoryId.value);
-        formData.append('brandId', form.brandId.value);
+        formData.append('markaId', form.markaId.value);
         formData.append('status', form.status.value);
         
         // Handle image based on selected type
@@ -501,6 +522,16 @@ class ProductsManager {
 
     async createProduct(formData) {
         const token = getAuthToken();
+        
+        // Check token validity
+        if (!token || isTokenExpired(token)) {
+            showAlert('Sessiya müddəti bitib. Yenidən daxil olun.', 'warning');
+            setTimeout(() => {
+                window.location.href = '/admin/login.html';
+            }, 2000);
+            return;
+        }
+        
         const response = await fetch(`${this.apiUrl}/products`, {
             method: 'POST',
             headers: {
@@ -521,6 +552,16 @@ class ProductsManager {
 
     async updateProduct(id, formData) {
         const token = getAuthToken();
+        
+        // Check token validity
+        if (!token || isTokenExpired(token)) {
+            showAlert('Sessiya müddəti bitib. Yenidən daxil olun.', 'warning');
+            setTimeout(() => {
+                window.location.href = '/admin/login.html';
+            }, 2000);
+            return;
+        }
+        
         console.log('Sending PUT request to:', `${this.apiUrl}/products/${id}`);
         
         const response = await fetch(`${this.apiUrl}/products/${id}`, {

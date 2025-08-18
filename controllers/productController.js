@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const { getDatabase } = require('../config/database');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -40,75 +41,84 @@ exports.uploadImage = upload.single('imageFile');
 // @access  Public
 exports.getProducts = async (req, res) => {
   try {
-    let query;
+    const db = getDatabase();
+    
+    // Check if using MongoDB or JSON files
+    if (db.dbType === 'mongodb') {
+      let query;
 
-    // Copy req.query
-    const reqQuery = { ...req.query };
+      // Copy req.query
+      const reqQuery = { ...req.query };
 
-    // Fields to exclude
-    const removeFields = ['select', 'sort', 'page', 'limit'];
+      // Fields to exclude
+      const removeFields = ['select', 'sort', 'page', 'limit'];
 
-    // Loop over removeFields and delete them from reqQuery
-    removeFields.forEach(param => delete reqQuery[param]);
+      // Loop over removeFields and delete them from reqQuery
+      removeFields.forEach(param => delete reqQuery[param]);
 
-    // Create query string
-    let queryStr = JSON.stringify(reqQuery);
+      // Create query string
+      let queryStr = JSON.stringify(reqQuery);
 
-    // Create operators ($gt, $gte, etc)
-    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+      // Create operators ($gt, $gte, etc)
+      queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 
-    // Finding resource
-    query = Product.find(JSON.parse(queryStr)).populate('category').populate('brand');
+      // Finding resource
+      query = Product.find(JSON.parse(queryStr)).populate('category').populate('marka');
 
-    // Select Fields
-    if (req.query.select) {
-      const fields = req.query.select.split(',').join(' ');
-      query = query.select(fields);
-    }
+      // Select Fields
+      if (req.query.select) {
+        const fields = req.query.select.split(',').join(' ');
+        query = query.select(fields);
+      }
 
-    // Sort
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
+      // Sort
+      if (req.query.sort) {
+        const sortBy = req.query.sort.split(',').join(' ');
+        query = query.sort(sortBy);
+      } else {
+        query = query.sort('-createdAt');
+      }
+
+      // Pagination
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const total = await Product.countDocuments();
+
+      query = query.skip(startIndex).limit(limit);
+
+      // Executing query
+      const products = await query;
+
+      res.status(200).json(products);
     } else {
-      query = query.sort('-createdAt');
-    }
-
-    // Pagination
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const total = await Product.countDocuments();
-
-    query = query.skip(startIndex).limit(limit);
-
-    // Executing query
-    const products = await query;
-
-    // Pagination result
-    const pagination = {};
-
-    if (endIndex < total) {
-      pagination.next = {
-        page: page + 1,
-        limit
+      // Using JSON files
+      const filters = {
+        category: req.query.category,
+        marka: req.query.marka,
+        search: req.query.search,
+        minPrice: req.query.minPrice ? parseFloat(req.query.minPrice) : undefined,
+        maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice) : undefined
       };
+      
+      const products = await db.getProducts(filters);
+      const categories = await db.getCategories();
+      const markas = await db.getMarkas();
+      
+      // Create lookup maps
+      const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
+      const markaMap = new Map(markas.map(marka => [marka.id, marka]));
+      
+      // Add category and marka information to products
+      const productsWithDetails = products.map(product => ({
+        ...product,
+        category: categoryMap.get(product.categoryId) || null,
+        marka: markaMap.get(product.markaId) || null
+      }));
+      
+      res.status(200).json(productsWithDetails);
     }
-
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit
-      };
-    }
-
-    res.status(200).json({
-      success: true,
-      count: products.length,
-      pagination,
-      data: products
-    });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -119,7 +129,7 @@ exports.getProducts = async (req, res) => {
 // @access  Public
 exports.getProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate('category').populate('brand');
+    const product = await Product.findById(req.params.id).populate('category').populate('marka');
 
     if (!product) {
       return res.status(404).json({ success: false, error: 'Product not found' });
@@ -143,6 +153,17 @@ exports.createProduct = async (req, res) => {
     console.log('Uploaded file:', req.file);
     
     const productData = { ...req.body };
+    
+    // Handle field name mapping from frontend to backend
+    if (productData.categoryId) {
+      productData.category = productData.categoryId;
+      delete productData.categoryId;
+    }
+    
+    if (productData.markaId) {
+      productData.marka = productData.markaId;
+      delete productData.markaId;
+    }
     
     // Handle image
     if (req.file) {
@@ -192,6 +213,17 @@ exports.updateProduct = async (req, res) => {
     }
     
     const updateData = { ...req.body };
+    
+    // Handle field name mapping from frontend to backend
+    if (updateData.categoryId) {
+      updateData.category = updateData.categoryId;
+      delete updateData.categoryId;
+    }
+    
+    if (updateData.markaId) {
+      updateData.marka = updateData.markaId;
+      delete updateData.markaId;
+    }
     
     // Handle image update
     if (req.file) {

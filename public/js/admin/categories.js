@@ -21,7 +21,7 @@ class CategoriesManager {
         // Modal events
         const modal = document.getElementById('category-modal');
         const addBtn = document.getElementById('add-category-btn');
-        const closeBtn = modal.querySelector('.btn-close');
+        const closeBtn = modal ? modal.querySelector('.btn-close') : null;
         const cancelBtn = document.getElementById('cancel-btn');
         const form = document.getElementById('category-form');
 
@@ -40,11 +40,13 @@ class CategoriesManager {
         this.bindImageEvents();
 
         // Close modal when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                this.closeModal();
-            }
-        });
+        if (modal) {
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeModal();
+                }
+            });
+        }
     }
 
     async getCurrentUser() {
@@ -130,18 +132,31 @@ class CategoriesManager {
     }
 
     async loadCategories() {
+        console.log('Loading categories...');
         this.showLoading(true);
         try {
             await this.getCurrentUser();
             const token = getAuthToken();
+            console.log('Auth token:', token ? 'Found' : 'Not found');
+            if (!token) {
+                console.error('No auth token found');
+                showAlert('Giriş token-i tapılmadı. Yenidən daxil olun.', 'danger');
+                return;
+            }
+            
             const headers = {};
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
+                headers['Content-Type'] = 'application/json';
             }
-            const response = await fetch(`${API_URL}/categories`, { headers });
-            if (!response.ok) throw new Error('Failed to load categories');
-            const result = await response.json();
+            
+            console.log('Making API request to:', `${API_URL}/categories`);
+            const result = await apiRequest(`${API_URL}/categories`);
+            if (!result) {
+                throw new Error('Failed to load categories from API');
+            }
             this.categories = result.data || result;
+            console.log('Categories loaded:', this.categories.length, 'items');
             this.renderCategories();
             
             // Show/hide add category button based on user role
@@ -155,7 +170,7 @@ class CategoriesManager {
             }
         } catch (error) {
             console.error('Error loading categories:', error);
-            showAlert('Kateqoriyalar yüklənərkən xəta baş verdi', 'danger');
+            showAlert('Kateqoriyalar yüklənərkən xəta baş verdi: ' + error.message, 'danger');
         } finally {
             this.showLoading(false);
         }
@@ -165,13 +180,18 @@ class CategoriesManager {
         const tbody = document.getElementById('categories-table');
         const noData = document.getElementById('no-data');
         
-        if (this.categories.length === 0) {
-            tbody.innerHTML = '';
-            noData.classList.remove('d-none');
+        if (!tbody) {
+            console.error('Categories table element not found');
             return;
         }
         
-        noData.classList.add('d-none');
+        if (this.categories.length === 0) {
+            tbody.innerHTML = '';
+            if (noData) noData.classList.remove('d-none');
+            return;
+        }
+        
+        if (noData) noData.classList.add('d-none');
         
         tbody.innerHTML = this.categories.map(category => {
             const createdDate = new Date(category.createdAt).toLocaleDateString('az-AZ');
@@ -206,8 +226,16 @@ class CategoriesManager {
     }
 
     filterCategories() {
-        const searchTerm = document.getElementById('table-search-input').value.toLowerCase();
-        const statusFilter = document.getElementById('status-filter').value;
+        const searchInput = document.getElementById('table-search-input');
+        const statusFilterElement = document.getElementById('status-filter');
+        
+        if (!searchInput || !statusFilterElement) {
+            console.error('Filter elements not found');
+            return;
+        }
+        
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusFilter = statusFilterElement.value;
 
         const filteredCategories = this.categories.filter(category => {
             const matchesSearch = category.name.toLowerCase().includes(searchTerm) ||
@@ -229,6 +257,11 @@ class CategoriesManager {
         const title = document.getElementById('modal-title');
         const form = document.getElementById('category-form');
         
+        if (!modal || !title || !form) {
+            console.error('Modal elements not found');
+            return;
+        }
+        
         this.currentCategory = category;
         
         if (category) {
@@ -239,7 +272,8 @@ class CategoriesManager {
             form.reset();
             this.hideImagePreview();
             // Reset radio buttons to URL option
-            document.getElementById('category-image-url-radio').checked = true;
+            const urlRadio = document.getElementById('category-image-url-radio');
+            if (urlRadio) urlRadio.checked = true;
             this.toggleImageInput();
         }
         
@@ -247,6 +281,8 @@ class CategoriesManager {
         modal.classList.remove('fade');
         modal.style.display = 'block';
         modal.classList.add('show');
+        // Fix accessibility issue: remove aria-hidden when modal is shown
+        modal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('modal-open');
         
         // Add backdrop
@@ -261,9 +297,16 @@ class CategoriesManager {
         const modal = document.getElementById('category-modal');
         const form = document.getElementById('category-form');
         
+        if (!modal || !form) {
+            console.error('Modal elements not found');
+            return;
+        }
+        
         // Hide modal manually
         modal.style.display = 'none';
         modal.classList.remove('show');
+        // Restore aria-hidden when modal is closed
+        modal.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('modal-open');
         
         // Remove backdrop
@@ -276,7 +319,8 @@ class CategoriesManager {
         form.reset();
         this.hideImagePreview();
         // Reset to URL option
-        document.getElementById('category-image-url-radio').checked = true;
+        const urlRadio = document.getElementById('category-image-url-radio');
+        if (urlRadio) urlRadio.checked = true;
         this.toggleImageInput();
     }
 
@@ -301,14 +345,33 @@ class CategoriesManager {
     async handleSubmit(e) {
         e.preventDefault();
         
-        const formData = new FormData(e.target);
+        const form = e.target;
+        if (!form) {
+            console.error('Form element not found');
+            return;
+        }
+        
+        const formData = new FormData(form);
         const urlRadio = document.getElementById('category-image-url-radio');
         const fileInput = document.getElementById('category-image-file');
         
+        const name = formData.get('name');
+        const description = formData.get('description');
+        const status = formData.get('status');
+        
+        if (!name || name.trim() === '') {
+            if (typeof showAlert === 'function') {
+                showAlert('Kateqoriya adı tələb olunur', 'error');
+            } else {
+                alert('Kateqoriya adı tələb olunur');
+            }
+            return;
+        }
+        
         let categoryData = {
-            name: formData.get('name'),
-            description: formData.get('description'),
-            status: formData.get('status')
+            name: name,
+            description: description,
+            status: status
         };
 
         // Handle image upload
@@ -350,6 +413,16 @@ class CategoriesManager {
 
     async createCategory(categoryData) {
         const token = getAuthToken();
+        
+        // Check token validity
+        if (!token || isTokenExpired(token)) {
+            showAlert('Sessiya müddəti bitib. Yenidən daxil olun.', 'warning');
+            setTimeout(() => {
+                window.location.href = '/admin/login.html';
+            }, 2000);
+            return;
+        }
+        
         const response = await fetch(`${API_URL}/categories`, {
             method: 'POST',
             headers: {
@@ -361,32 +434,54 @@ class CategoriesManager {
         
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.message || 'Failed to create category');
+            const errorMessage = error.message || 'Failed to create category';
+            throw new Error(errorMessage);
         }
         
         return response.json();
     }
 
     async createCategoryWithFile(formData) {
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/categories`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
-        
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to create category');
+        try {
+            const token = getAuthToken();
+            if (!token) {
+                throw new Error('Giriş token-i tapılmadı');
+            }
+            
+            const response = await fetch(`${API_URL}/categories`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                const errorMessage = error.message || 'Kateqoriya yaradılarkən xəta baş verdi';
+                throw new Error(errorMessage);
+            }
+            
+            return response.json();
+        } catch (error) {
+            console.error('Error creating category with file:', error);
+            const errorMessage = error.message || 'Kateqoriya yaradılarkən xəta baş verdi';
+            throw new Error(errorMessage);
         }
-        
-        return response.json();
     }
 
     async updateCategory(id, categoryData) {
         const token = getAuthToken();
+        
+        // Check token validity
+        if (!token || isTokenExpired(token)) {
+            showAlert('Sessiya müddəti bitib. Yenidən daxil olun.', 'warning');
+            setTimeout(() => {
+                window.location.href = '/admin/login.html';
+            }, 2000);
+            return;
+        }
+        
         const response = await fetch(`${API_URL}/categories/${id}`, {
             method: 'PUT',
             headers: {
@@ -430,6 +525,16 @@ class CategoriesManager {
     }
 
     async deleteCategory(id) {
+        if (!id) {
+            console.error('Category ID is required for deletion');
+            if (typeof showAlert === 'function') {
+                showAlert('Kateqoriya ID-si tapılmadı', 'error');
+            } else {
+                alert('Kateqoriya ID-si tapılmadı');
+            }
+            return;
+        }
+        
         if (!confirm('Bu kateqoriyanı silmək istədiyinizə əminsiniz?')) {
             return;
         }
@@ -448,11 +553,20 @@ class CategoriesManager {
                 throw new Error(error.message || 'Failed to delete category');
             }
             
-            showAlert('Kateqoriya uğurla silindi', 'success');
+            if (typeof showAlert === 'function') {
+                showAlert('Kateqoriya uğurla silindi', 'success');
+            } else {
+                alert('Kateqoriya uğurla silindi');
+            }
             await this.loadCategories();
         } catch (error) {
             console.error('Error deleting category:', error);
-            showAlert('Kateqoriya silinərkən xəta baş verdi', 'danger');
+            const errorMessage = error.message || 'Kateqoriya silinərkən xəta baş verdi';
+            if (typeof showAlert === 'function') {
+                showAlert(errorMessage, 'error');
+            } else {
+                alert(errorMessage);
+            }
         }
     }
 

@@ -5,7 +5,7 @@ const productDetails = document.getElementById('product-details');
 const productNameBreadcrumb = document.getElementById('product-name-breadcrumb');
 const productImage = document.getElementById('product-image');
 const productName = document.getElementById('product-name');
-const productBrand = document.getElementById('product-brand');
+const productMarka = document.getElementById('product-marka');
 const productPrice = document.getElementById('product-price');
 const productStock = document.getElementById('product-stock');
 const productDescription = document.getElementById('product-description');
@@ -61,10 +61,10 @@ async function loadProductDetails() {
             productImage.src = product.image;
         }
         
-        if (product.brand) {
-            productBrand.innerHTML = `<a href="/brand.html?id=${product.brand._id}">${product.brand.name}</a>`;
+        if (product.marka) {
+            productMarka.innerHTML = `<a href="/marka.html?id=${product.marka._id}">${product.marka.name}</a>`;
         } else {
-            productBrand.textContent = 'N/A';
+            productMarka.textContent = 'N/A';
         }
         
         productPrice.textContent = formatCurrency(product.price);
@@ -119,8 +119,8 @@ async function loadRelatedProducts(currentProduct) {
         
         if (currentProduct.category) {
             queryParams = `?category=${currentProduct.category._id}`;
-        } else if (currentProduct.brand) {
-            queryParams = `?brand=${currentProduct.brand._id}`;
+        } else if (currentProduct.marka) {
+            queryParams = `?marka=${currentProduct.marka._id}`;
         }
         
         const response = await fetch(`${PRODUCTS_URL}${queryParams}`);
@@ -156,7 +156,6 @@ async function loadRelatedProducts(currentProduct) {
                         <p class="card-text text-truncate">${product.description || 'Təsvir mövcud deyil'}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="price">${formatCurrency(product.price)}</span>
-                            <a href="/product.html?id=${product._id}" class="btn btn-primary btn-sm">Təfərrüatları Gör</a>
                         </div>
                     </div>
                 </div>

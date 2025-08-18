@@ -20,6 +20,11 @@ const CategorySchema = new mongoose.Schema({
     type: String,
     default: 'no-image.jpg'
   },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active'
+  },
   createdAt: {
     type: Date,
     default: Date.now

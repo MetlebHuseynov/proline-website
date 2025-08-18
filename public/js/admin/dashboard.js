@@ -5,7 +5,7 @@
 // DOM Elements
 const productsCountElement = document.getElementById('products-count');
 const categoriesCountElement = document.getElementById('categories-count');
-const brandsCountElement = document.getElementById('brands-count');
+const markasCountElement = document.getElementById('markas-count');
 const usersCountElement = document.getElementById('users-count');
 const recentProductsTable = document.getElementById('recent-products-table');
 
@@ -15,7 +15,7 @@ const isProduction = window.location.hostname !== 'localhost' && window.location
 const API_BASE_URL = isProduction ? 'https://proline-website.onrender.com/api' : 'http://localhost:3000/api';
 const PRODUCTS_URL = `${API_BASE_URL}/products`;
 const CATEGORIES_URL = `${API_BASE_URL}/categories`;
-const BRANDS_URL = `${API_BASE_URL}/brands`;
+const MARKAS_URL = `${API_BASE_URL}/markas`;
 const USERS_URL = `${API_BASE_URL}/users`;
 
 // Auth token function is available from main.js
@@ -27,7 +27,7 @@ const loadDashboardData = async () => {
         await Promise.all([
             loadProductsCount(),
             loadCategoriesCount(),
-            loadBrandsCount(),
+            loadMarkasCount(),
             loadUsersCount(),
             loadRecentProducts()
         ]);
@@ -75,22 +75,22 @@ const loadCategoriesCount = async () => {
     }
 };
 
-// Load Brands Count
-const loadBrandsCount = async () => {
+// Load Markas Count
+const loadMarkasCount = async () => {
     try {
         const token = getAuthToken();
-        const response = await fetch(BRANDS_URL, {
+        const response = await fetch(MARKAS_URL, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-        const brands = await response.json();
-        if (brandsCountElement) {
-            brandsCountElement.textContent = brands.length.toLocaleString();
+        const markas = await response.json();
+        if (markasCountElement) {
+            markasCountElement.textContent = markas.length.toLocaleString();
         }
     } catch (error) {
-        console.error('Error loading brands count:', error);
-        if (brandsCountElement) brandsCountElement.textContent = '0';
+        console.error('Error loading markas count:', error);
+        if (markasCountElement) markasCountElement.textContent = '0';
     }
 };
 
@@ -139,7 +139,7 @@ const loadRecentProducts = async () => {
                 </td>
                 <td>${product.name}</td>
                 <td>${product.category.name}</td>
-                <td>${product.brand.name}</td>
+                <td>${product.marka.name}</td>
                 <td>${formatCurrency(product.price)}</td>
                 <td>
                     ${product.inStock ? 
@@ -238,14 +238,14 @@ const initProductModal = () => {
         const productName = document.getElementById('productName').value;
         const productPrice = document.getElementById('productPrice').value;
         const productCategory = document.getElementById('productCategory').value;
-        const productBrand = document.getElementById('productBrand').value;
+        const productMarka = document.getElementById('productMarka').value;
         const productDescription = document.getElementById('productDescription').value;
         const productStock = document.getElementById('productStock').value;
         const productStatus = document.getElementById('productStatus').value;
         const productImage = document.getElementById('productImage').files[0];
         
         // Validate required fields
-        if (!productName || !productPrice || !productCategory || !productBrand || !productDescription || !productStock) {
+        if (!productName || !productPrice || !productCategory || !productMarka || !productDescription || !productStock) {
             showAlert('Bütün zəruri sahələri doldurun', 'error');
             return;
         }
@@ -255,7 +255,7 @@ const initProductModal = () => {
             name: productName,
             price: parseFloat(productPrice),
             category: productCategory,
-            brand: productBrand,
+            marka: productMarka,
             description: productDescription,
             stock: parseInt(productStock),
             status: productStatus,

@@ -13,10 +13,8 @@ const CONFIG = {
     API_URL: 'http://localhost:3000/api'
 };
 
-// Auto-detect environment for API URL
-const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-const API_URL = isProduction ? 'https://proline-website.onrender.com/api' : 'http://localhost:3000/api';
-const AUTH_URL = `${API_URL}/auth`;
+// Use CONFIG for API URL
+const AUTH_URL = `${CONFIG.API_URL}/auth`;
 
 // Utility Functions
 const showAlert = (message, type = 'danger', container = 'alert-container') => {
@@ -58,6 +56,35 @@ const getAuthToken = () => {
     return localStorage.getItem('token') || sessionStorage.getItem('token');
 };
 
+// Check if token is expired
+const isTokenExpired = (token) => {
+    if (!token) return true;
+    
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const currentTime = Date.now() / 1000;
+        return payload.exp < currentTime;
+    } catch (error) {
+        console.error('Token parsing error:', error);
+        return true;
+    }
+};
+
+// Check token validity and show warning if needed
+const checkTokenValidity = () => {
+    const token = getAuthToken();
+    
+    if (!token || isTokenExpired(token)) {
+        showAlert('Sessiya müddəti bitib. Yenidən daxil olun.', 'warning');
+        setTimeout(() => {
+            logout();
+        }, 3000);
+        return false;
+    }
+    
+    return true;
+};
+
 const checkAuth = () => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     
@@ -87,8 +114,46 @@ const logout = () => {
 };
 
 // API Request Helper
+// Token refresh function
+const refreshToken = async () => {
+    try {
+        const token = getAuthToken();
+        if (!token) return null;
+        
+        const response = await fetch(`${AUTH_URL}/refresh`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const newToken = data.token;
+            
+            // Update token in storage
+            if (localStorage.getItem('token')) {
+                localStorage.setItem('token', newToken);
+            } else if (sessionStorage.getItem('token')) {
+                sessionStorage.setItem('token', newToken);
+            }
+            
+            return newToken;
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('Token refresh error:', error);
+        return null;
+    }
+};
+
 const apiRequest = async (url, method = 'GET', data = null) => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    // Check token validity before making request
+    checkTokenValidity();
+    
+    let token = localStorage.getItem('token') || sessionStorage.getItem('token');
     
     const options = {
         method,
@@ -103,11 +168,27 @@ const apiRequest = async (url, method = 'GET', data = null) => {
     }
     
     try {
-        const response = await fetch(url, options);
+        let response = await fetch(url, options);
         
-        // If unauthorized, redirect to login
+        // If unauthorized, try to refresh token once
         if (response.status === 401) {
-            logout();
+            const newToken = await refreshToken();
+            
+            if (newToken) {
+                // Retry request with new token
+                options.headers['Authorization'] = `Bearer ${newToken}`;
+                response = await fetch(url, options);
+                
+                if (response.ok) {
+                    return await response.json();
+                }
+            }
+            
+            // If refresh failed or second request failed, logout
+            showAlert('Sessiya müddəti bitib. Yenidən daxil olun.', 'warning');
+            setTimeout(() => {
+                logout();
+            }, 2000);
             return null;
         }
         
@@ -120,7 +201,16 @@ const apiRequest = async (url, method = 'GET', data = null) => {
         return result;
     } catch (error) {
         console.error('API request error:', error);
-        showAlert(error.message || 'Məlumatlar alınarkən xəta baş verdi');
+        
+        // Check if it's a token-related error
+        if (error.message && error.message.includes('token')) {
+            showAlert('Sessiya müddəti bitib. Yenidən daxil olun.', 'warning');
+            setTimeout(() => {
+                logout();
+            }, 2000);
+        } else {
+            showAlert(error.message || 'Məlumatlar alınarkən xəta baş verdi');
+        }
         return null;
     }
 };

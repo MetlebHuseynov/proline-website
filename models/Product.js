@@ -20,9 +20,9 @@ const ProductSchema = new mongoose.Schema({
     ref: 'Category',
     required: true
   },
-  brand: {
+  marka: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Brand',
+    ref: 'Marka',
     required: true
   },
   image: {

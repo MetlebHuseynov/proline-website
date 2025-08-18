@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Login</title>
+</head>
+<body>
+    <h1>Manual Login for Admin Panel</h1>
+    <button onclick="manualLogin()">Set Auth Token</button>
+    <button onclick="checkToken()">Check Token</button>
+    <button onclick="goToCategories()">Go to Categories</button>
+    <div id="result"></div>
+
+    <script>
+        function manualLogin() {
+            // Set a valid token manually
+            const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBwcm9saW5lLmF6Iiwicm9sZSI6InN1cGVyX2FkbWluIiwiaWF0IjoxNzU1MzYwODkyLCJleHAiOjE3NTU0NDcyOTJ9.-8jToPIZYngGhry6R3ox2kVCq72QmL2u';
+            const user = {
+                id: 1,
+                name: 'Super Admin',
+                email: 'admin@proline.az',
+                role: 'super_admin'
+            };
+            
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            document.getElementById('result').innerHTML = '<p style="color: green;">Token and user data set successfully!</p>';
+            console.log('Token set:', token);
+            console.log('User set:', user);
+        }
+        
+        function checkToken() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            document.getElementById('result').innerHTML = `
+                <p><strong>Token:</strong> ${token ? 'Found' : 'Not found'}</p>
+                <p><strong>User:</strong> ${user ? 'Found' : 'Not found'}</p>
+                ${token ? `<p><strong>Token preview:</strong> ${token.substring(0, 50)}...</p>` : ''}
+                ${user ? `<p><strong>User data:</strong> ${user}</p>` : ''}
+            `;
+        }
+        
+        function goToCategories() {
+            window.location.href = '/admin/categories.html';
+        }
+    </script>
+</body>
+</html>

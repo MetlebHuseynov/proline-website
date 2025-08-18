@@ -1,13 +1,14 @@
 const fs = require('fs').promises;
 const path = require('path');
 const { pool } = require('../config/pool');
+const { getDatabase } = require('../config/database');
 
 class FeaturedProductController {
     constructor() {
         this.featuredProductsPath = path.join(__dirname, '../data/featured-products.json');
         this.productsPath = path.join(__dirname, '../data/products.json');
         this.categoriesPath = path.join(__dirname, '../data/categories.json');
-        this.brandsPath = path.join(__dirname, '../data/brands.json');
+        this.markasPath = path.join(__dirname, '../data/markas.json');
     }
 
     async readFeaturedProducts() {
@@ -32,8 +33,8 @@ class FeaturedProductController {
 
     async readProducts() {
         try {
-            const result = await pool.query('SELECT * FROM products ORDER BY id');
-            return result.rows;
+            const db = getDatabase();
+            return await db.getProducts();
         } catch (error) {
             console.error('Məhsullar oxunarkən xəta:', error);
             return [];
@@ -42,18 +43,18 @@ class FeaturedProductController {
 
     async readCategories() {
         try {
-            const result = await pool.query('SELECT * FROM categories ORDER BY id');
-            return result.rows;
+            const db = getDatabase();
+            return await db.getCategories();
         } catch (error) {
             console.error('Kateqoriyalar oxunarkən xəta:', error);
             return [];
         }
     }
 
-    async readBrands() {
+    async readMarkas() {
         try {
-            const result = await pool.query('SELECT * FROM brands ORDER BY id');
-            return result.rows;
+            const db = getDatabase();
+            return await db.getMarkas();
         } catch (error) {
             console.error('Markalar oxunarkən xəta:', error);
             return [];
@@ -66,11 +67,11 @@ class FeaturedProductController {
             const featuredProducts = await this.readFeaturedProducts();
             const products = await this.readProducts();
             const categories = await this.readCategories();
-            const brands = await this.readBrands();
+            const markas = await this.readMarkas();
 
             // Create lookup maps for better performance
             const categoryMap = new Map(categories.map(cat => [cat.id, cat.name]));
-            const brandMap = new Map(brands.map(brand => [brand.id, brand.name]));
+            const markaMap = new Map(markas.map(marka => [marka.id, marka.name]));
 
             // Get full product details for featured products
             const featuredWithDetails = featuredProducts
@@ -81,7 +82,7 @@ class FeaturedProductController {
                     return {
                         ...product,
                         category: categoryMap.get(product.category_id) || 'Naməlum',
-                        brand: brandMap.get(product.brand_id) || 'Naməlum',
+                        marka: markaMap.get(product.marka_id) || 'Naməlum',
                         featuredOrder: featured.order,
                         featuredId: featured.id
                     };
@@ -177,11 +178,11 @@ class FeaturedProductController {
             const featuredProducts = await this.readFeaturedProducts();
             const products = await this.readProducts();
             const categories = await this.readCategories();
-            const brands = await this.readBrands();
+            const markas = await this.readMarkas();
 
             // Create lookup maps
             const categoryMap = new Map(categories.map(cat => [cat.id, cat.name]));
-            const brandMap = new Map(brands.map(brand => [brand.id, brand.name]));
+            const markaMap = new Map(markas.map(marka => [marka.id, marka.name]));
 
             // Get only active featured products with details
             const publicFeatured = featuredProducts
@@ -196,7 +197,7 @@ class FeaturedProductController {
                         price: product.price,
                         image: product.image,
                         category: categoryMap.get(product.category_id) || 'Naməlum',
-                        brand: brandMap.get(product.brand_id) || 'Naməlum',
+                        marka: markaMap.get(product.marka_id) || 'Naməlum',
                         stock: product.stock
                     };
                 })

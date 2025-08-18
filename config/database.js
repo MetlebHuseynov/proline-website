@@ -85,9 +85,9 @@ class DatabaseManager {
                 params.push(filters.category);
             }
 
-            if (filters.brand) {
-                query += ' AND brand = ?';
-                params.push(filters.brand);
+            if (filters.marka) {
+                query += ' AND marka = ?';
+                params.push(filters.marka);
             }
 
             if (filters.search) {
@@ -117,14 +117,17 @@ class DatabaseManager {
 
     async getProductsJSON(filters = {}) {
         const products = await this.readJSONFile('products.json');
+        const categories = await this.readJSONFile('categories.json');
+        const markas = await this.readJSONFile('markas.json');
+        
         let filtered = products;
 
         if (filters.category) {
-            filtered = filtered.filter(p => p.category === filters.category);
+            filtered = filtered.filter(p => p.category == filters.category || p.categoryId == filters.category);
         }
 
-        if (filters.brand) {
-            filtered = filtered.filter(p => p.brand === filters.brand);
+        if (filters.marka) {
+            filtered = filtered.filter(p => p.marka == filters.marka || p.markaId == filters.marka);
         }
 
         if (filters.search) {
@@ -143,7 +146,19 @@ class DatabaseManager {
             filtered = filtered.filter(p => p.price <= filters.maxPrice);
         }
 
-        return filtered;
+        // Kateqoriya və marka məlumatlarını obyekt şəklində əlavə et
+        const enrichedProducts = filtered.map(product => {
+            const category = categories.find(c => c.id == product.category || c.id == product.categoryId);
+            const marka = markas.find(b => b.id == product.marka || b.id == product.markaId);
+            
+            return {
+                ...product,
+                category: category || null,
+                marka: marka || null
+            };
+        });
+
+        return enrichedProducts;
     }
 
     // Tək məhsul
@@ -165,18 +180,38 @@ class DatabaseManager {
         }
     }
 
-    // Brendlər
-    async getBrands() {
+    // Markalar
+    async getMarkas() {
         if (this.dbType === 'mysql') {
             try {
-                const [rows] = await this.connection.execute('SELECT * FROM brands ORDER BY name');
+                const [rows] = await this.connection.execute(`
+                    SELECT m.*, 
+                           COALESCE(COUNT(p.id), 0) as productCount
+                    FROM markas m 
+                    LEFT JOIN products p ON p.marka = m.id::text
+                    GROUP BY m.id, m.name, m.description, m.logo, m.website, m.status, m.created_at, m.updated_at
+                    ORDER BY m.name
+                `);
                 return rows;
             } catch (error) {
-                console.error('MySQL brend sorğusu xətası:', error.message);
+                console.error('MySQL marka sorğusu xətası:', error.message);
                 return [];
             }
         } else {
-            return await this.readJSONFile('brands.json');
+            const markas = await this.readJSONFile('markas.json');
+            const products = await this.readJSONFile('products.json');
+            
+            // Hər marka üçün məhsul sayını hesabla
+            return markas.map(marka => {
+                const productCount = products.filter(product => 
+                    product.marka == marka.id || product.marka == marka.id.toString()
+                ).length;
+                
+                return {
+                    ...marka,
+                    productCount
+                };
+            });
         }
     }
 
@@ -184,14 +219,35 @@ class DatabaseManager {
     async getCategories() {
         if (this.dbType === 'mysql') {
             try {
-                const [rows] = await this.connection.execute('SELECT * FROM categories ORDER BY name');
+                const [rows] = await this.connection.execute(`
+                    SELECT c.*, 
+                           COALESCE(COUNT(p.id), 0) as productCount
+                    FROM categories c 
+                    LEFT JOIN products p ON p.categoryId = c.id::text
+                    GROUP BY c.id, c.name, c.description, c.icon, c.status, c.created_at, c.updated_at
+                    ORDER BY c.name
+                `);
                 return rows;
             } catch (error) {
                 console.error('MySQL kateqoriya sorğusu xətası:', error.message);
                 return [];
             }
         } else {
-            return await this.readJSONFile('categories.json');
+            const categories = await this.readJSONFile('categories.json');
+            const products = await this.readJSONFile('products.json');
+            
+            // Hər kateqoriya üçün məhsul sayını hesabla
+            return categories.map(category => {
+                const productCount = products.filter(product => 
+                    product.categoryId == category.id || product.categoryId == category.id.toString() ||
+                    product.category == category.id || product.category == category.id.toString()
+                ).length;
+                
+                return {
+                    ...category,
+                    productCount
+                };
+            });
         }
     }
 

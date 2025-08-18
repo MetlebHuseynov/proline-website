@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öndə Olan Kateqoriyalar - ProLine Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <a href="/admin/dashboard.html" class="sidebar-brand">ProLine Admin</a>
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/admin/dashboard.html" class="sidebar-menu-item">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>İdarə Paneli</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/products.html" class="sidebar-menu-item">
+                        <i class="fas fa-box"></i>
+                        <span>Məhsullar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/categories.html" class="sidebar-menu-item">
+                        <i class="fas fa-tags"></i>
+                        <span>Kateqoriyalar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/brands.html" class="sidebar-menu-item">
+                        <i class="fas fa-building"></i>
+                        <span>Markalar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/featured-products.html" class="sidebar-menu-item">
+                        <i class="fas fa-star"></i>
+                        <span>Öndə Olan Məhsullar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/featured-categories.html" class="sidebar-menu-item active">
+                        <i class="fas fa-star"></i>
+                        <span>Öndə Olan Kateqoriyalar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/featured-brands.html" class="sidebar-menu-item">
+                        <i class="fas fa-award"></i>
+                        <span>Öndə Olan Markalar</span>
+                    </a>
+                </li>
+                <div class="sidebar-divider"></div>
+                <li>
+                    <a href="/admin/users.html" class="sidebar-menu-item">
+                        <i class="fas fa-users"></i>
+                        <span>İstifadəçilər</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/settings.html" class="sidebar-menu-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Tənzimləmələr</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Çıxış
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <h1 class="page-title">Öndə Olan Kateqoriyalar</h1>
+                    <p class="page-subtitle">Ana səhifədə göstəriləcək kateqoriyaları idarə edin</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="user-name">Admin</span>
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <div class="row">
+                    <!-- Available Categories -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Mövcud Kateqoriyalar</h5>
+                                <div class="d-flex gap-2">
+                                    <select id="category-filter" class="form-select form-select-sm" style="width: auto;">
+                                        <option value="">Bütün kateqoriyalar</option>
+                                    </select>
+                                    <input type="text" id="search-categories" class="form-control form-control-sm" placeholder="Axtar..." style="width: 150px;">
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="available-categories" class="category-list">
+                                    <!-- Categories will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Featured Categories -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Öndə Olan Kateqoriyalar</h5>
+                                <div>
+                                    <span id="featured-count" class="badge bg-primary">0/6</span>
+                                    <button id="save-featured" class="btn btn-success btn-sm ms-2" disabled>
+                                        <i class="fas fa-save"></i>
+                                        Yadda Saxla
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    Kateqoriyaları sürükləyərək sıralayın. Maksimum 6 kateqoriya seçə bilərsiniz.
+                                </div>
+                                <div id="featured-categories" class="featured-list">
+                                    <!-- Featured categories will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alert-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="/js/admin/main.js"></script>
+    <script src="/js/admin/featured-categories.js"></script>
+</body>
+</html>

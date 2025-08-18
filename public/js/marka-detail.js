@@ -1,22 +1,22 @@
 // DOM Elements
-const brandLoading = document.getElementById('brand-loading');
-const brandNotFound = document.getElementById('brand-not-found');
-const brandInfo = document.getElementById('brand-info');
-const brandProductsSection = document.getElementById('brand-products-section');
-const brandStorySection = document.getElementById('brand-story-section');
-const brandNameBreadcrumb = document.getElementById('brand-name-breadcrumb');
-const brandLogo = document.getElementById('brand-logo');
-const brandName = document.getElementById('brand-name');
-const brandNameTitle = document.getElementById('brand-name-title');
-const brandNameAbout = document.getElementById('brand-name-about');
-const brandDescription = document.getElementById('brand-description');
-const brandWebsite = document.getElementById('brand-website');
-const brandOrigin = document.getElementById('brand-origin');
-const brandEstablished = document.getElementById('brand-established');
-const brandStory = document.getElementById('brand-story');
-const brandProducts = document.getElementById('brand-products');
+const markaLoading = document.getElementById('marka-loading');
+const markaNotFound = document.getElementById('marka-not-found');
+const markaInfo = document.getElementById('marka-info');
+const markaProductsSection = document.getElementById('marka-products-section');
+const markaStorySection = document.getElementById('marka-story-section');
+const markaNameBreadcrumb = document.getElementById('marka-name-breadcrumb');
+const markaLogo = document.getElementById('marka-logo');
+const markaName = document.getElementById('marka-name');
+const markaNameTitle = document.getElementById('marka-name-title');
+const markaNameAbout = document.getElementById('marka-name-about');
+const markaDescription = document.getElementById('marka-description');
+const markaWebsite = document.getElementById('marka-website');
+const markaOrigin = document.getElementById('marka-origin');
+const markaEstablished = document.getElementById('marka-established');
+const markaStory = document.getElementById('marka-story');
+const markaProducts = document.getElementById('marka-products');
 const noProductsFound = document.getElementById('no-products-found');
-const otherBrands = document.getElementById('other-brands');
+const otherMarkas = document.getElementById('other-markas');
 const searchInput = document.getElementById('search-input');
 const searchBtn = document.getElementById('search-btn');
 const sortSelect = document.getElementById('sort-select');
@@ -25,12 +25,12 @@ const pagination = document.getElementById('pagination');
 
 // API URLs
 const API_URL = window.ProLine.API_URL;
-const BRANDS_URL = `${API_URL}/brands`;
+const MARKAS_URL = `${API_URL}/markas`;
 const PRODUCTS_URL = `${API_URL}/products`;
 const CATEGORIES_URL = `${API_URL}/categories`;
 
 // State variables
-let currentBrand = null;
+let currentMarka = null;
 let currentPage = 1;
 let productsPerPage = 8;
 let totalPages = 0;
@@ -67,94 +67,94 @@ function getUrlParams() {
     };
 }
 
-// Load brand details
-async function loadBrandDetails() {
+// Load marka details
+async function loadMarkaDetails() {
     const { id } = getUrlParams();
     
     if (!id) {
-        showBrandNotFound();
+        showMarkaNotFound();
         return;
     }
     
     try {
-        const response = await fetch(`${BRANDS_URL}/${id}`);
+        const response = await fetch(`${MARKAS_URL}/${id}`);
         
         if (!response.ok) {
-            throw new Error('Brand not found');
+            throw new Error('Marka not found');
         }
         
-        const brand = await response.json();
-        currentBrand = brand;
+        const marka = await response.json();
+        currentMarka = marka;
         
         // Update document title
-        document.title = `${brand.name} - ProLine`;
+        document.title = `${marka.name} - ProLine`;
         
-        // Update brand info
-        brandNameBreadcrumb.textContent = brand.name;
-        brandName.textContent = brand.name;
-        brandNameTitle.textContent = brand.name;
-        brandNameAbout.textContent = brand.name;
-        brandDescription.textContent = brand.description || 'No description available';
+        // Update marka info
+        markaNameBreadcrumb.textContent = marka.name;
+        markaName.textContent = marka.name;
+        markaNameTitle.textContent = marka.name;
+        markaNameAbout.textContent = marka.name;
+        markaDescription.textContent = marka.description || 'No description available';
         
-        if (brand.logo) {
-            brandLogo.src = brand.logo;
+        if (marka.logo) {
+            markaLogo.src = marka.logo;
         }
         
-        if (brand.website) {
-            brandWebsite.textContent = brand.website;
-            brandWebsite.href = brand.website.startsWith('http') ? brand.website : `https://${brand.website}`;
+        if (marka.website) {
+            markaWebsite.textContent = marka.website;
+            markaWebsite.href = marka.website.startsWith('http') ? marka.website : `https://${marka.website}`;
         } else {
-            brandWebsite.parentElement.classList.add('d-none');
+            markaWebsite.parentElement.classList.add('d-none');
         }
         
-        if (brand.origin) {
-            brandOrigin.textContent = brand.origin;
+        if (marka.origin) {
+            markaOrigin.textContent = marka.origin;
         } else {
-            brandOrigin.parentElement.classList.add('d-none');
+            markaOrigin.parentElement.classList.add('d-none');
         }
         
-        if (brand.established) {
-            brandEstablished.textContent = brand.established;
+        if (marka.established) {
+            markaEstablished.textContent = marka.established;
         } else {
-            brandEstablished.parentElement.classList.add('d-none');
+            markaEstablished.parentElement.classList.add('d-none');
         }
         
-        if (brand.story) {
-            brandStory.innerHTML = brand.story;
-            brandStorySection.classList.remove('d-none');
+        if (marka.story) {
+            markaStory.innerHTML = marka.story;
+            markaStorySection.classList.remove('d-none');
         }
         
-        // Show brand info
-        brandLoading.classList.add('d-none');
-        brandInfo.classList.remove('d-none');
-        brandProductsSection.classList.remove('d-none');
+        // Show marka info
+        markaLoading.classList.add('d-none');
+        markaInfo.classList.remove('d-none');
+        markaProductsSection.classList.remove('d-none');
         
-        // Load brand products
-        await loadBrandProducts();
+        // Load marka products
+        await loadMarkaProducts();
         
         // Load categories for filter
         await loadCategories();
         
-        // Load other brands
-        await loadOtherBrands();
+        // Load other markas
+        await loadOtherMarkas();
         
     } catch (error) {
-        console.error('Error loading brand details:', error);
-        showBrandNotFound();
+        console.error('Error loading marka details:', error);
+        showMarkaNotFound();
     }
 }
 
-// Show brand not found message
-function showBrandNotFound() {
-    brandLoading.classList.add('d-none');
-    brandNotFound.classList.remove('d-none');
+// Show marka not found message
+function showMarkaNotFound() {
+    markaLoading.classList.add('d-none');
+    markaNotFound.classList.remove('d-none');
     document.title = 'Marka Tapılmadı - ProLine';
 }
 
-// Load brand products
-async function loadBrandProducts() {
+// Load marka products
+async function loadMarkaProducts() {
     try {
-        const response = await fetch(`${PRODUCTS_URL}?brand=${currentBrand._id}`);
+        const response = await fetch(`${PRODUCTS_URL}?marka=${currentMarka._id}`);
         
         if (!response.ok) {
             throw new Error('Failed to load products');
@@ -166,7 +166,7 @@ async function loadBrandProducts() {
         applyFiltersAndSort();
         
     } catch (error) {
-        console.error('Error loading brand products:', error);
+        console.error('Error loading marka products:', error);
         showAlert('Məhsullar yüklənə bilmədi. Zəhmət olmasa daha sonra yenidən cəhd edin.');
     }
 }
@@ -217,7 +217,7 @@ function applyFiltersAndSort() {
 // Display products
 function displayProducts() {
     // Clear products container
-    brandProducts.innerHTML = '';
+    markaProducts.innerHTML = '';
     
     if (filteredProducts.length === 0) {
         noProductsFound.classList.remove('d-none');
@@ -245,13 +245,12 @@ function displayProducts() {
                     <p class="card-text text-truncate">${product.description || 'No description available'}</p>
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="price">${formatCurrency(product.price)}</span>
-                        <a href="/product.html?id=${product._id}" class="btn btn-primary btn-sm">Təfərrüatları Gör</a>
                     </div>
                 </div>
             </div>
         `;
         
-        brandProducts.appendChild(productCard);
+        markaProducts.appendChild(productCard);
     }
 }
 
@@ -273,7 +272,7 @@ function displayPagination() {
             currentPage--;
             displayProducts();
             displayPagination();
-            window.scrollTo(0, brandProductsSection.offsetTop - 100);
+            window.scrollTo(0, markaProductsSection.offsetTop - 100);
         }
     });
     pagination.appendChild(prevLi);
@@ -296,7 +295,7 @@ function displayPagination() {
             currentPage = i;
             displayProducts();
             displayPagination();
-            window.scrollTo(0, brandProductsSection.offsetTop - 100);
+            window.scrollTo(0, markaProductsSection.offsetTop - 100);
         });
         pagination.appendChild(pageLi);
     }
@@ -311,7 +310,7 @@ function displayPagination() {
             currentPage++;
             displayProducts();
             displayPagination();
-            window.scrollTo(0, brandProductsSection.offsetTop - 100);
+            window.scrollTo(0, markaProductsSection.offsetTop - 100);
         }
     });
     pagination.appendChild(nextLi);
@@ -341,51 +340,51 @@ async function loadCategories() {
     }
 }
 
-// Load other brands
-async function loadOtherBrands() {
+// Load other markas
+async function loadOtherMarkas() {
     try {
-        const response = await fetch(BRANDS_URL);
+        const response = await fetch(MARKAS_URL);
         
         if (!response.ok) {
-            throw new Error('Failed to load brands');
+            throw new Error('Failed to load markas');
         }
         
-        const brands = await response.json();
+        const markas = await response.json();
         
-        // Filter out current brand and limit to 4 brands
-        const otherBrandsList = brands
-            .filter(brand => brand._id !== currentBrand._id)
+        // Filter out current marka and limit to 4 markas
+        const otherMarkasList = markas
+            .filter(marka => marka._id !== currentMarka._id)
             .slice(0, 4);
         
-        // Clear other brands container
-        otherBrands.innerHTML = '';
+        // Clear other markas container
+        otherMarkas.innerHTML = '';
         
-        if (otherBrandsList.length === 0) {
-            otherBrands.innerHTML = '<div class="col-12 text-center"><p>No other brands available.</p></div>';
+        if (otherMarkasList.length === 0) {
+            otherMarkas.innerHTML = '<div class="col-12 text-center"><p>No other markas available.</p></div>';
             return;
         }
         
-        // Display other brands
-        otherBrandsList.forEach(brand => {
-            const brandCard = document.createElement('div');
-            brandCard.className = 'col-md-6 col-lg-3 mb-4';
-            brandCard.innerHTML = `
-                <div class="card h-100 brand-card">
-                    <img src="${brand.logo || '/images/brand-placeholder.svg'}" class="card-img-top" alt="${brand.name}">
+        // Display other markas
+        otherMarkasList.forEach(marka => {
+            const markaCard = document.createElement('div');
+            markaCard.className = 'col-md-6 col-lg-3 mb-4';
+            markaCard.innerHTML = `
+                <div class="card h-100 marka-card">
+                    <img src="${marka.logo || '/images/marka-placeholder.svg'}" class="card-img-top" alt="${marka.name}">
                     <div class="card-body text-center">
-                        <h5 class="card-title">${brand.name}</h5>
-                        <p class="card-text text-truncate">${brand.description || 'Təsvir mövcud deyil'}</p>
-                        <a href="/brand.html?id=${brand._id}" class="btn btn-outline-primary">Məhsulları Gör</a>
+                        <h5 class="card-title">${marka.name}</h5>
+                        <p class="card-text text-truncate">${marka.description || 'Təsvir mövcud deyil'}</p>
+                        <a href="/marka.html?id=${marka._id}" class="btn btn-outline-primary">Məhsulları Gör</a>
                     </div>
                 </div>
             `;
             
-            otherBrands.appendChild(brandCard);
+            otherMarkas.appendChild(markaCard);
         });
         
     } catch (error) {
-        console.error('Error loading other brands:', error);
-        otherBrands.innerHTML = '<div class="col-12 text-center"><p>Digər markalar yüklənə bilmədi.</p></div>';
+        console.error('Error loading other markas:', error);
+        otherMarkas.innerHTML = '<div class="col-12 text-center"><p>Digər markalar yüklənə bilmədi.</p></div>';
     }
 }
 
@@ -414,5 +413,5 @@ categoryFilter.addEventListener('change', () => {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    loadBrandDetails();
+    loadMarkaDetails();
 });

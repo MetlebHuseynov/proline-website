@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
-const BrandSchema = new mongoose.Schema({
+const MarkaSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please add a brand name'],
+    required: [true, 'Please add a marka name'],
     unique: true,
     trim: true,
     maxlength: [50, 'Name cannot be more than 50 characters']
@@ -35,9 +35,9 @@ const BrandSchema = new mongoose.Schema({
 });
 
 // Create slug from name
-BrandSchema.pre('save', function(next) {
+MarkaSchema.pre('save', function(next) {
   this.slug = this.name.toLowerCase().replace(/ /g, '-');
   next();
 });
 
-module.exports = mongoose.model('Brand', BrandSchema);
+module.exports = mongoose.model('Marka', MarkaSchema);

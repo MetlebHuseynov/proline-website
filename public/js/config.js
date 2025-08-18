@@ -11,7 +11,7 @@ if (typeof window.ProLine === 'undefined') {
     window.ProLine = {
         API_URL: `${baseURL}/api`,
         PRODUCTS_URL: `${baseURL}/api/products`,
-        BRANDS_URL: `${baseURL}/api/brands`,
+        MARKAS_URL: `${baseURL}/api/markas`,
         CATEGORIES_URL: `${baseURL}/api/categories`,
         USERS_URL: `${baseURL}/api/users`,
         AUTH_URL: `${baseURL}/api/auth`

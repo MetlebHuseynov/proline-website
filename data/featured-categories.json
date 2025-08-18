@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "categoryId": 9,
+    "order": 1,
+    "createdAt": "2025-08-18T07:02:36.969Z",
+    "updatedAt": "2025-08-18T07:02:36.969Z"
+  },
+  {
+    "id": 2,
+    "categoryId": 8,
+    "order": 2,
+    "createdAt": "2025-08-18T07:02:36.969Z",
+    "updatedAt": "2025-08-18T07:02:36.969Z"
+  }
+]

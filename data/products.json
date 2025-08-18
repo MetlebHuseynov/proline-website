@@ -1,26 +1,49 @@
 [
   {
     "id": 1,
-    "name": "Qaynaq Elektrodu E6013",
+    "name": "Qaynaq Elektrodu E601312",
     "price": 78,
     "description": "",
     "stock": 56,
     "categoryId": 7,
     "brandId": 6,
-    "image": "/uploads/imageFile-1755340435383-468797752.jpg",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnT5rkerYjzQ-ycEmk6L2jwf7B_mHiSSCwxw&s",
     "status": "active",
-    "createdAt": "2025-08-16T10:33:55.386Z"
+    "createdAt": "2025-08-16T10:33:55.386Z",
+    "category": "8",
+    "brand": "7",
+    "updatedAt": "2025-08-18T05:55:11.649Z",
+    "marka": "8"
   },
   {
-    "id": 2,
-    "name": "Metleb Huseynov",
+    "id": 3,
+    "name": "Pive12",
+    "description": "bax",
     "price": 12,
-    "description": "",
-    "stock": 12,
-    "categoryId": 5,
-    "brandId": 4,
-    "image": "/uploads/imageFile-1755340864080-291827442.jpg",
+    "category": "8",
+    "brand": "5",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnT5rkerYjzQ-ycEmk6L2jwf7B_mHiSSCwxw&s",
+    "stock": 122,
+    "sku": "",
+    "weight": 0,
     "status": "active",
-    "createdAt": "2025-08-16T10:41:04.082Z"
+    "createdAt": "2025-08-16T19:08:00.129Z",
+    "updatedAt": "2025-08-18T05:55:16.895Z",
+    "marka": "7"
+  },
+  {
+    "id": 4,
+    "name": "12",
+    "description": "12",
+    "price": 12,
+    "category": "9",
+    "marka": "8",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnT5rkerYjzQ-ycEmk6L2jwf7B_mHiSSCwxw&s",
+    "stock": 12,
+    "sku": "",
+    "weight": 0,
+    "status": "active",
+    "createdAt": "2025-08-16T20:20:50.789Z",
+    "updatedAt": "2025-08-16T20:20:50.789Z"
   }
 ]

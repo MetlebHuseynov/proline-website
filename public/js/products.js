@@ -1,12 +1,17 @@
 // DOM Elements
 const productsContainer = document.getElementById('products-container');
+const categoriesContainer = document.getElementById('categories-container');
+const filterSection = document.getElementById('filter-section');
+const pageTitle = document.getElementById('page-title');
+const pageDescription = document.getElementById('page-description');
+const backToCategoriesBtn = document.getElementById('back-to-categories-btn');
 const noProductsFound = document.getElementById('no-products-found');
 const pagination = document.getElementById('pagination');
 const searchInput = document.getElementById('search-input');
 const searchBtn = document.getElementById('search-btn');
 const sortSelect = document.getElementById('sort-select');
 const categoriesFilter = document.getElementById('categories-filter');
-const brandsFilter = document.getElementById('brands-filter');
+const markaFilter = document.getElementById('marka-filter');
 const priceRangeMin = document.getElementById('min-price');
 const priceRangeMax = document.getElementById('max-price');
 const priceFilterBtn = document.getElementById('price-filter-btn');
@@ -16,10 +21,11 @@ const clearFiltersBtn = document.getElementById('clear-filters-btn');
 const API_URL = window.ProLine.API_URL;
 const PRODUCTS_URL = `${API_URL}/products`;
 const CATEGORIES_URL = `${API_URL}/categories`;
-const BRANDS_URL = `${API_URL}/brands`;
+const MARKA_URL = `${API_URL}/markas`;
 
 // State variables
 let allProducts = [];
+let allCategories = [];
 let filteredProducts = [];
 let currentPage = 1;
 let productsPerPage = 12;
@@ -27,12 +33,38 @@ let totalPages = 0;
 let currentSort = 'name_asc';
 let currentSearch = '';
 let currentCategory = '';
-let currentBrand = '';
+let currentMarka = '';
 let currentPriceMin = '';
 let currentPriceMax = '';
+let showingCategories = false;
 
-// Utility functions (using global functions from main.js)
-// formatCurrency and showAlert are defined in main.js
+// Utility functions
+function localShowAlert(message, type = 'danger') {
+    const alertContainer = document.getElementById('alert-container');
+    if (!alertContainer) {
+        console.error('Alert container not found');
+        return;
+    }
+
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+
+    alertContainer.innerHTML = '';
+    alertContainer.appendChild(alert);
+
+    // Auto dismiss after 5 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+// formatCurrency is defined in main.js
 
 // Auto dismiss after 5 seconds for alerts
 function dismissAlert(alertDiv) {
@@ -42,12 +74,33 @@ function dismissAlert(alertDiv) {
     }, 5000);
 }
 
+// Show/hide sections based on current view
+function toggleSections() {
+    const categoriesSection = document.getElementById('categories-section');
+    const filterSection = document.getElementById('filter-section');
+    const productsContainer = document.getElementById('products-container');
+    const noProductsFound = document.getElementById('no-products-found');
+    const pagination = document.getElementById('pagination');
+    
+    if (showingCategories) {
+        categoriesSection.style.display = 'block';
+        filterSection.style.display = 'none';
+        productsContainer.style.display = 'none';
+        if (noProductsFound) noProductsFound.style.display = 'none';
+        if (pagination) pagination.style.display = 'none';
+    } else {
+        categoriesSection.style.display = 'none';
+        filterSection.style.display = 'block';
+        productsContainer.style.display = 'block';
+    }
+}
+
 // Get URL parameters
 function getUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     return {
         category: urlParams.get('category'),
-        brand: urlParams.get('brand'),
+        marka: urlParams.get('brand'),
         search: urlParams.get('search')
     };
 }
@@ -76,26 +129,48 @@ async function loadProducts() {
         // Check for URL parameters
         const params = getUrlParams();
         if (params.category) {
+            // If category parameter exists, show products for that category
             currentCategory = params.category;
-            categoriesFilter.value = currentCategory;
+            showingCategories = false;
+            
+            // Find category name
+            const category = allCategories.find(cat => cat.id === params.category);
+            if (category) {
+                selectCategory(params.category, category.name);
+            } else {
+                // If category not found, just apply filters
+                applyFiltersAndSort();
+            }
+        } else {
+            // Show all products by default
+            showingCategories = false;
         }
         
-        if (params.brand) {
-            currentBrand = params.brand;
-            brandsFilter.value = currentBrand;
+        if (params.marka) {
+            currentMarka = params.marka;
+            if (markaFilter) markaFilter.value = currentMarka;
         }
         
         if (params.search) {
             currentSearch = params.search;
-            searchInput.value = currentSearch;
+            if (searchInput) searchInput.value = currentSearch;
         }
         
-        // Apply filters and sort
-        applyFiltersAndSort();
+        // Apply filters and sort only if showing products
+        if (!showingCategories) {
+            applyFiltersAndSort();
+        } else {
+            // Show categories if no specific category is selected
+            displayCategories();
+        }
         
     } catch (error) {
         console.error('Error loading products:', error);
-        showAlert('Məhsullar yüklənə bilmədi. Zəhmət olmasa daha sonra yenidən cəhd edin.');
+        if (typeof showAlert === 'function') {
+            showAlert('Məhsullar yüklənə bilmədi. Zəhmət olmasa daha sonra yenidən cəhd edin.');
+        } else {
+            localShowAlert('Məhsullar yüklənə bilmədi. Zəhmət olmasa daha sonra yenidən cəhd edin.');
+        }
     }
 }
 
@@ -108,15 +183,20 @@ async function loadCategories() {
             throw new Error('Failed to load categories');
         }
         
-        const categories = await response.json();
+        allCategories = await response.json();
         
         // Populate category filter
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category._id;
-            option.textContent = category.name;
-            categoriesFilter.appendChild(option);
-        });
+        if (categoriesFilter) {
+            categoriesFilter.innerHTML = '<option value="">Bütün Kateqoriyalar</option>';
+        }
+        if (categoriesFilter) {
+            allCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                categoriesFilter.appendChild(option);
+            });
+        }
         
         // Set selected category if in URL params
         const params = getUrlParams();
@@ -124,38 +204,168 @@ async function loadCategories() {
             categoriesFilter.value = params.category;
         }
         
+        // Display categories if showing categories
+        if (showingCategories) {
+            displayCategories();
+        }
+        
     } catch (error) {
         console.error('Error loading categories:', error);
     }
 }
 
-// Load brands for filter
-async function loadBrandsForFilter() {
-    try {
-        const response = await fetch(BRANDS_URL);
+// Display categories
+function displayCategories() {
+    if (!categoriesContainer) {
+        console.error('Categories container not found!');
+        return;
+    }
+    
+    categoriesContainer.innerHTML = '';
+    
+    if (allCategories.length === 0) {
+        categoriesContainer.innerHTML = '<div class="col-12 text-center py-5"><p>Kateqoriya tapılmadı.</p></div>';
+        return;
+    }
+    
+    // Dynamic category icons mapping - covers more categories
+    const getCategoryIcon = (categoryName) => {
+        const iconMap = {
+            'Alüminium Profil': 'fas fa-window-maximize',
+            'Armatur və Metal': 'fas fa-hammer',
+            'Çimento və Beton': 'fas fa-cube',
+            'İzolyasiya': 'fas fa-shield-alt',
+            'Kafel və Keramika': 'fas fa-th',
+            'Kərpic və Blok': 'fas fa-building',
+            'Qaynaq Materialları': 'fas fa-fire',
+            'Çelik Məhsulları': 'fas fa-industry',
+            'Tikinti Materialları': 'fas fa-hammer',
+            'Elektrik Avadanlıqları': 'fas fa-bolt',
+            'Mexaniki Hissələr': 'fas fa-cogs'
+        };
         
-        if (!response.ok) {
-            throw new Error('Failed to load brands');
+        // Return specific icon or default based on category name keywords
+        if (iconMap[categoryName]) {
+            return iconMap[categoryName];
         }
         
-        const brands = await response.json();
+        // Fallback based on keywords in category name
+        const name = categoryName.toLowerCase();
+        if (name.includes('çelik') || name.includes('metal')) return 'fas fa-industry';
+        if (name.includes('elektrik') || name.includes('kabel')) return 'fas fa-bolt';
+        if (name.includes('tikinti') || name.includes('inşaat')) return 'fas fa-hammer';
+        if (name.includes('beton') || name.includes('çimento')) return 'fas fa-cube';
+        if (name.includes('qaynaq') || name.includes('kaynak')) return 'fas fa-fire';
         
-        // Populate brand filter
-        brands.forEach(brand => {
-            const option = document.createElement('option');
-            option.value = brand._id;
-            option.textContent = brand.name;
-            brandsFilter.appendChild(option);
+        return 'fas fa-cube'; // Default icon
+    };
+    
+    allCategories.forEach(category => {
+        const categoryCard = document.createElement('div');
+        categoryCard.className = 'col-lg-4 col-md-6 mb-4';
+        
+        // Use image if available, otherwise use dynamic icon
+        const iconHtml = category.image 
+            ? `<img src="${category.image}" alt="${category.name}" class="category-image mb-3" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;">` 
+            : `<i class="${getCategoryIcon(category.name)}" fa-3x text-primary"></i>`;
+        
+        categoryCard.innerHTML = `
+            <div class="card category-card h-100 shadow-sm" data-category-id="${category.id}">
+                <div class="card-body text-center">
+                    <div class="category-icon mb-3">
+                        ${iconHtml}
+                    </div>
+                    <h5 class="card-title">${category.name}</h5>
+                    <p class="card-text text-muted">${category.description || ''}</p>
+                    <a href="#" class="btn btn-primary">Məhsulları Gör</a>
+                </div>
+            </div>
+        `;
+        
+        // Add click event to category card
+        categoryCard.addEventListener('click', (e) => {
+            e.preventDefault();
+            selectCategory(category.id, category.name);
         });
         
-        // Set selected brand if in URL params
+        categoriesContainer.appendChild(categoryCard);
+    });
+}
+
+// Select category and show products
+function selectCategory(categoryId, categoryName) {
+    console.log('Selecting category:', categoryId, categoryName);
+    
+    // Update page title and description
+    if (pageTitle && categoryName) {
+        pageTitle.textContent = categoryName;
+    }
+    if (pageDescription && categoryName) {
+        pageDescription.textContent = `${categoryName} kateqoriyasındakı məhsullar`;
+    }
+    
+    // Show filter section and product container, hide categories
+    if (filterSection) {
+        filterSection.style.display = 'block';
+    }
+    if (productsContainer) {
+        productsContainer.style.display = 'block';
+    }
+    if (categoriesContainer) {
+        categoriesContainer.style.display = 'none';
+    }
+    
+    // Set category filter and update state
+    currentCategory = categoryId;
+    showingCategories = false;
+    currentPage = 1; // Reset to first page
+    
+    if (categoriesFilter) {
+        categoriesFilter.value = categoryId;
+    }
+    
+    // Update URL
+    updateURL();
+    
+    // Load products for this category
+    applyFiltersAndSort();
+}
+
+// Go back to categories
+function goBackToCategories() {
+    // Redirect to categories page
+    window.location.href = '/categories.html';
+}
+
+// Load marka for filter
+async function loadMarkaForFilter() {
+    try {
+        const response = await fetch(MARKA_URL);
+        
+        if (!response.ok) {
+            throw new Error('Failed to load marka');
+        }
+        
+        const markas = await response.json();
+        
+        // Populate marka filter
+        if (markaFilter) {
+            markas.forEach(marka => {
+                const option = document.createElement('option');
+                option.value = marka._id;
+                option.textContent = marka.name;
+                markaFilter.appendChild(option);
+            });
+        }
+        
+        // Set selected marka if in URL params
         const params = getUrlParams();
-        if (params.brand) {
-            brandsFilter.value = params.brand;
+        if (params.marka) {
+            markaFilter.value = params.marka;
         }
         
     } catch (error) {
-        console.error('Error loading brands:', error);
+        console.error('Error loading marka:', error);
     }
 }
 
@@ -168,10 +378,10 @@ function applyFiltersAndSort() {
             (product.description && product.description.toLowerCase().includes(currentSearch.toLowerCase()));
             
         const matchesCategory = currentCategory === '' || 
-            (product.category && product.category._id === currentCategory);
+            (product.category && (product.category.id == currentCategory || product.category._id == currentCategory));
             
-        const matchesBrand = currentBrand === '' || 
-            (product.brand && product.brand._id === currentBrand);
+        const matchesMarka = currentMarka === '' || 
+            (product.brand && (product.brand.id == currentMarka || product.brand._id == currentMarka));
             
         const matchesPriceMin = currentPriceMin === '' || 
             product.price >= parseFloat(currentPriceMin);
@@ -179,7 +389,7 @@ function applyFiltersAndSort() {
         const matchesPriceMax = currentPriceMax === '' || 
             product.price <= parseFloat(currentPriceMax);
             
-        return matchesSearch && matchesCategory && matchesBrand && matchesPriceMin && matchesPriceMax;
+        return matchesSearch && matchesCategory && matchesMarka && matchesPriceMin && matchesPriceMax;
     });
     
     // Sort products
@@ -211,7 +421,10 @@ function applyFiltersAndSort() {
     displayPagination();
     
     // Update product count
-    document.getElementById('product-count').textContent = filteredProducts.length;
+    const productCountElement = document.getElementById('product-count');
+    if (productCountElement) {
+        productCountElement.textContent = filteredProducts.length;
+    }
 }
 
 // Display products
@@ -245,12 +458,11 @@ function displayProducts() {
                     <p class="card-text text-truncate">${product.description || 'No description available'}</p>
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="price">${formatCurrency(product.price)}</span>
-                        <a href="/product.html?id=${product._id}" class="btn btn-primary btn-sm">Təfərrüatları Gör</a>
                     </div>
                 </div>
                 <div class="card-footer bg-transparent">
                     <small class="text-muted">
-                        ${product.brand ? `<a href="/brand.html?id=${product.brand._id}">${product.brand.name}</a>` : 'No brand'} | 
+                        ${product.brand ? `<a href="/brand.html?id=${product.brand.id || product.brand._id}">${product.brand.name}</a>` : 'No brand'} | 
                         ${product.category ? product.category.name : 'No category'}
                     </small>
                 </div>
@@ -346,7 +558,7 @@ function updateURL() {
 // Reset filters
 function resetFilters() {
     currentCategory = '';
-    currentBrand = '';
+    currentMarka = '';
     currentPriceMin = '';
     currentPriceMax = '';
     currentSearch = '';
@@ -354,7 +566,7 @@ function resetFilters() {
     
     // Reset form elements
     categoryFilter.value = '';
-    brandFilter.value = '';
+    markaFilter.value = '';
     priceRangeMin.value = '';
     priceRangeMax.value = '';
     searchInput.value = '';
@@ -365,43 +577,79 @@ function resetFilters() {
     updateURL();
 }
 
-// Event listeners
-searchBtn.addEventListener('click', () => {
-    currentSearch = searchInput.value.trim();
-    applyFiltersAndSort();
-    updateURL();
-});
-
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
+// Event listeners - only add if elements exist
+if (searchBtn) {
+    searchBtn.addEventListener('click', () => {
         currentSearch = searchInput.value.trim();
         applyFiltersAndSort();
         updateURL();
-    }
-});
+    });
+}
 
-sortSelect.addEventListener('change', () => {
-    currentSort = sortSelect.value;
-    applyFiltersAndSort();
-});
+if (searchInput) {
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            currentSearch = searchInput.value.trim();
+            applyFiltersAndSort();
+            updateURL();
+        }
+    });
+}
 
-priceFilterBtn.addEventListener('click', () => {
-    currentCategory = categoriesFilter.value;
-    currentBrand = brandsFilter.value;
-    currentPriceMin = minPrice.value;
-    currentPriceMax = maxPrice.value;
-    
-    applyFiltersAndSort();
-    updateURL();
-});
+if (sortSelect) {
+    sortSelect.addEventListener('change', () => {
+        currentSort = sortSelect.value;
+        applyFiltersAndSort();
+    });
+}
 
-clearFiltersBtn.addEventListener('click', resetFilters);
+if (priceFilterBtn) {
+    priceFilterBtn.addEventListener('click', () => {
+        currentCategory = categoriesFilter.value;
+        currentMarka = markaFilter.value;
+        currentPriceMin = priceRangeMin.value;
+        currentPriceMax = priceRangeMax.value;
+        
+        applyFiltersAndSort();
+        updateURL();
+    });
+}
 
-// Initialize
+if (clearFiltersBtn) {
+    clearFiltersBtn.addEventListener('click', resetFilters);
+}
+
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
-    // Load filter options
-    await Promise.all([loadCategories(), loadBrandsForFilter()]);
+    const urlParams = getUrlParams();
     
-    // Load products
+    // Always load products and filters
     await loadProducts();
+    await loadCategories();
+    await loadMarkaForFilter();
+    
+    if (urlParams.category) {
+        // If category is specified, show products for that category
+        const category = allCategories.find(cat => cat.id === urlParams.category);
+        if (category) {
+            selectCategory(urlParams.category, category.name);
+        } else {
+            // If category not found, show all products
+            showingCategories = false;
+            toggleSections();
+            applyFiltersAndSort();
+        }
+    } else {
+        // Show all products by default
+        showingCategories = false;
+        toggleSections();
+        applyFiltersAndSort();
+        displayProducts();
+        displayPagination();
+    }
+    
+    // Back to categories button
+    if (backToCategoriesBtn) {
+        backToCategoriesBtn.addEventListener('click', goBackToCategories);
+    }
 });

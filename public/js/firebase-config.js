@@ -34,16 +34,16 @@ class FirebaseManager {
             });
     }
 
-    // Brendləri real-time yüklə
-    loadBrandsRealtime(callback) {
-        return this.db.collection('brands')
+    // Markaları real-time yüklə
+    loadMarkasRealtime(callback) {
+        return this.db.collection('markas')
             .orderBy('name', 'asc')
             .onSnapshot((snapshot) => {
-                const brands = [];
+                const markas = [];
                 snapshot.forEach((doc) => {
-                    brands.push({ id: doc.id, ...doc.data() });
+                    markas.push({ id: doc.id, ...doc.data() });
                 });
-                callback(brands);
+                callback(markas);
             });
     }
 

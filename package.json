@@ -7,8 +7,12 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "production": "NODE_ENV=production node server.js",
-    "build": "npm install",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm install --production",
+    "postinstall": "echo 'Installation completed successfully'",
+    "prestart": "echo 'Starting ProLine server...'",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "echo 'Linting not configured yet'",
+    "clean": "rm -rf node_modules package-lock.json && npm install"
   },
   "keywords": [
     "proline",

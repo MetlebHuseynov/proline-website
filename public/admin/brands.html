@@ -46,6 +46,18 @@
                         <span>Öndə Olan Məhsullar</span>
                     </a>
                 </li>
+                <li>
+                    <a href="/admin/featured-categories.html" class="sidebar-menu-item">
+                        <i class="fas fa-star"></i>
+                        <span>Öndə Olan Kateqoriyalar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/featured-brands.html" class="sidebar-menu-item">
+                        <i class="fas fa-award"></i>
+                        <span>Öndə Olan Markalar</span>
+                    </a>
+                </li>
                 <div class="sidebar-divider"></div>
                 <li>
                     <a href="/admin/users.html" class="sidebar-menu-item">
@@ -105,7 +117,7 @@
                     <!-- Page Heading -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Markalar</h1>
-                        <button class="btn btn-primary" id="add-brand-btn">
+                        <button class="btn btn-primary" id="add-marka-btn">
                             <i class="fas fa-plus me-1"></i> Yeni Marka
                         </button>
                     </div>
@@ -114,7 +126,7 @@
                     <div id="alert-container"></div>
 
                     <!-- Add/Edit Brand Modal -->
-                    <div class="modal fade" id="brand-modal" tabindex="-1" aria-labelledby="brandModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="marka-modal" tabindex="-1" aria-labelledby="markaModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -122,18 +134,18 @@
                                     <button type="button" class="btn-close" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form id="brand-form" enctype="multipart/form-data">
+                                    <form id="marka-form" enctype="multipart/form-data">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label for="brand-name" class="form-label">Marka Adı *</label>
-                                                    <input type="text" class="form-control" id="brand-name" name="name" required>
+                                                    <label for="marka-name" class="form-label">Marka Adı *</label>
+                                                    <input type="text" class="form-control" id="marka-name" name="name" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label for="brand-status" class="form-label">Status</label>
-                                                    <select class="form-select" id="brand-status" name="status">
+                                                    <label for="marka-status" class="form-label">Status</label>
+                                                    <select class="form-select" id="marka-status" name="status">
                                                         <option value="active">Aktiv</option>
                                                         <option value="inactive">Qeyri-aktiv</option>
                                                     </select>
@@ -141,37 +153,37 @@
                                             </div>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="brand-description" class="form-label">Təsvir</label>
-                                            <textarea class="form-control" id="brand-description" name="description" rows="4"></textarea>
+                                            <label for="marka-description" class="form-label">Təsvir</label>
+                                            <textarea class="form-control" id="marka-description" name="description" rows="4"></textarea>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="brand-logo" class="form-label">Logo</label>
-                                            <div class="mb-2">
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="logoType" id="brand-logo-url-radio" value="url" checked>
-                                                    <label class="form-check-label" for="brand-logo-url-radio">URL</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="logoType" id="brand-logo-file-radio" value="file">
-                                                    <label class="form-check-label" for="brand-logo-file-radio">Fayl yüklə</label>
-                                                </div>
-                                            </div>
-                                            <input type="url" class="form-control" id="brand-logo" name="logo" placeholder="Logo URL-ni daxil edin">
-                                            <input type="file" class="form-control d-none" id="brand-logo-file" name="logoFile" accept="image/*">
-                                            <div class="mt-2" id="brand-logo-preview-container" style="display: none;">
-                                                <img id="brand-logo-preview" src="" alt="Logo önizləməsi">
-                                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="brand-remove-logo-btn">Sil</button>
+                                            <label for="marka-logo" class="form-label">Logo</label>
+                        <div class="mb-2">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="logoType" id="marka-logo-url-radio" value="url" checked>
+                                <label class="form-check-label" for="marka-logo-url-radio">URL</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="logoType" id="marka-logo-file-radio" value="file">
+                                <label class="form-check-label" for="marka-logo-file-radio">Fayl yüklə</label>
+                            </div>
+                        </div>
+                        <input type="url" class="form-control" id="marka-logo" name="logo" placeholder="Logo URL-ni daxil edin">
+                        <input type="file" class="form-control d-none" id="marka-logo-file" name="logoFile" accept="image/*">
+                        <div class="mt-2" id="marka-logo-preview-container" style="display: none;">
+                            <img id="marka-logo-preview" src="" alt="Logo önizləməsi">
+                                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="marka-remove-logo-btn">Sil</button>
                                             </div>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="brand-website" class="form-label">Veb sayt</label>
-                                            <input type="url" class="form-control" id="brand-website" name="website">
+                                            <label for="marka-website" class="form-label">Veb sayt</label>
+                                            <input type="url" class="form-control" id="marka-website" name="website">
                                         </div>
                                     </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" id="cancel-btn">Ləğv et</button>
-                                    <button type="submit" class="btn btn-primary" id="save-btn" form="brand-form">Saxla</button>
+                                    <button type="submit" class="btn btn-primary" id="save-btn" form="marka-form">Saxla</button>
                                 </div>
                             </div>
                         </div>
@@ -221,7 +233,7 @@
                                             <th>Əməliyyatlar</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="brands-table">
+                                    <tbody id="markas-table">
                                         <!-- Brands will be loaded here -->
                                     </tbody>
                                 </table>

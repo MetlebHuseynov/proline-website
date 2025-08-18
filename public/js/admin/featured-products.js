@@ -34,8 +34,8 @@ class FeaturedProductsManager {
             const response = await fetch('/api/categories');
             if (!response.ok) throw new Error('Kateqoriyalar yüklənə bilmədi');
             
-            const categories = await response.json();
-            this.renderCategoryFilter(categories);
+            this.categories = await response.json();
+            this.renderCategoryFilter(this.categories);
         } catch (error) {
             console.error('Kateqoriyalar yüklənərkən xəta:', error);
         }
@@ -211,7 +211,13 @@ class FeaturedProductsManager {
         }
 
         if (category) {
-            filtered = filtered.filter(product => product.category === category);
+            // Find category ID by name
+            const categoryObj = this.categories?.find(cat => cat.name === category);
+            const categoryId = categoryObj ? categoryObj.id.toString() : category;
+            filtered = filtered.filter(product => 
+                product.category === categoryId || 
+                product.categoryId === parseInt(categoryId)
+            );
         }
 
         this.renderAvailableProducts(filtered);

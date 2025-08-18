@@ -1,7 +1,29 @@
-const Category = require('../models/Category');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+
+// Helper functions for JSON file operations
+const readJSONFile = (filename) => {
+  try {
+    const filePath = path.join(__dirname, '..', 'data', filename);
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error(`Error reading ${filename}:`, error.message);
+    return [];
+  }
+};
+
+const writeJSONFile = (filename, data) => {
+  try {
+    const filePath = path.join(__dirname, '..', 'data', filename);
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    return true;
+  } catch (error) {
+    console.error(`Error writing ${filename}:`, error.message);
+    return false;
+  }
+};
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -43,7 +65,7 @@ exports.uploadImage = upload.single('imageFile');
 // @access  Public
 exports.getCategories = async (req, res) => {
   try {
-    const categories = await Category.find();
+    const categories = readJSONFile('categories.json');
 
     res.status(200).json({
       success: true,
@@ -60,7 +82,8 @@ exports.getCategories = async (req, res) => {
 // @access  Public
 exports.getCategory = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const categories = readJSONFile('categories.json');
+    const category = categories.find(c => c.id == req.params.id);
 
     if (!category) {
       return res.status(404).json({ success: false, error: 'Category not found' });
@@ -80,18 +103,33 @@ exports.getCategory = async (req, res) => {
 // @access  Private (Admin)
 exports.createCategory = async (req, res) => {
   try {
+    const categories = readJSONFile('categories.json');
     let categoryData = { ...req.body };
+    
+    // Generate new ID
+    const maxId = categories.length > 0 ? Math.max(...categories.map(c => c.id)) : 0;
+    categoryData.id = maxId + 1;
     
     // If file was uploaded, set the image path
     if (req.file) {
       categoryData.image = `/uploads/${req.file.filename}`;
     }
+    
+    // Add timestamps
+    categoryData.createdAt = new Date().toISOString();
+    categoryData.updatedAt = new Date().toISOString();
+    categoryData.productCount = 0;
+    categoryData.status = categoryData.status || 'active';
 
-    const category = await Category.create(categoryData);
+    categories.push(categoryData);
+    
+    if (!writeJSONFile('categories.json', categories)) {
+      throw new Error('Failed to save category');
+    }
 
     res.status(201).json({
       success: true,
-      data: category
+      data: categoryData
     });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -103,34 +141,41 @@ exports.createCategory = async (req, res) => {
 // @access  Private (Admin)
 exports.updateCategory = async (req, res) => {
   try {
-    let category = await Category.findById(req.params.id);
+    const categories = readJSONFile('categories.json');
+    const categoryIndex = categories.findIndex(c => c.id == req.params.id);
 
-    if (!category) {
+    if (categoryIndex === -1) {
       return res.status(404).json({ success: false, error: 'Category not found' });
     }
 
     let updateData = { ...req.body };
+    const currentCategory = categories[categoryIndex];
     
     // If file was uploaded, set the image path and delete old image
     if (req.file) {
       // Delete old image file if it exists
-      if (category.image && category.image.startsWith('/uploads/')) {
-        const oldImagePath = path.join(__dirname, '../public', category.image);
+      if (currentCategory.image && currentCategory.image.startsWith('/uploads/')) {
+        const oldImagePath = path.join(__dirname, '../public', currentCategory.image);
         if (fs.existsSync(oldImagePath)) {
           fs.unlinkSync(oldImagePath);
         }
       }
       updateData.image = `/uploads/${req.file.filename}`;
     }
-
-    category = await Category.findByIdAndUpdate(req.params.id, updateData, {
-      new: true,
-      runValidators: true
-    });
+    
+    // Update timestamp
+    updateData.updatedAt = new Date().toISOString();
+    
+    // Merge with existing data
+    categories[categoryIndex] = { ...currentCategory, ...updateData };
+    
+    if (!writeJSONFile('categories.json', categories)) {
+      throw new Error('Failed to update category');
+    }
 
     res.status(200).json({
       success: true,
-      data: category
+      data: categories[categoryIndex]
     });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -142,16 +187,33 @@ exports.updateCategory = async (req, res) => {
 // @access  Private (Admin)
 exports.deleteCategory = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const categories = readJSONFile('categories.json');
+    const categoryIndex = categories.findIndex(c => c.id == req.params.id);
 
-    if (!category) {
-      return res.status(404).json({ success: false, error: 'Category not found' });
+    if (categoryIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Kateqoriya tapılmadı' });
     }
 
-    await category.remove();
+    const categoryToDelete = categories[categoryIndex];
+    
+    // Delete associated image file if it exists
+    if (categoryToDelete.image && categoryToDelete.image.startsWith('/uploads/')) {
+      const imagePath = path.join(__dirname, '../public', categoryToDelete.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+    
+    // Remove category from array
+    categories.splice(categoryIndex, 1);
+    
+    if (!writeJSONFile('categories.json', categories)) {
+      throw new Error('Failed to delete category');
+    }
 
     res.status(200).json({
       success: true,
+      message: 'Kateqoriya uğurla silindi',
       data: {}
     });
   } catch (error) {

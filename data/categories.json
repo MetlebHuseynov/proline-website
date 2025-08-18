@@ -1,90 +1,22 @@
 [
   {
-    "id": 1,
-    "name": "Çimento və Beton",
-    "description": "Çimento, beton qarışığı və əlaqəli materiallar",
-    "image": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400",
-    "productCount": 2,
-    "status": "active",
-    "createdAt": "2024-01-15T08:00:00Z",
-    "updatedAt": "2024-01-15T08:00:00Z"
-  },
-  {
-    "id": 2,
-    "name": "Armatur və Metal",
-    "description": "Beton armaturası, metal konstruksiyalar və profillər",
-    "image": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400",
-    "productCount": 1,
-    "status": "active",
-    "createdAt": "2024-01-16T09:00:00Z",
-    "updatedAt": "2024-01-16T09:00:00Z"
-  },
-  {
-    "id": 3,
-    "name": "Kərpic və Blok",
-    "description": "Tikinti kərpici, bloklar və divar materialları",
-    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
-    "productCount": 1,
-    "status": "active",
-    "createdAt": "2024-01-17T10:00:00Z",
-    "updatedAt": "2024-01-17T10:00:00Z"
-  },
-  {
-    "id": 4,
-    "name": "Qaynaq Materialları",
-    "description": "Qaynaq elektrodları, tel və əlaqəli avadanlıqlar",
-    "image": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400",
-    "productCount": 1,
-    "status": "active",
-    "createdAt": "2024-01-18T11:00:00Z",
-    "updatedAt": "2024-01-18T11:00:00Z"
-  },
-  {
-    "id": 5,
-    "name": "Kafel və Keramika",
-    "description": "Keramik kafel, mozaika və dekorativ materiallar",
-    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
-    "productCount": 1,
-    "status": "active",
-    "createdAt": "2024-01-19T12:00:00Z",
-    "updatedAt": "2024-01-19T12:00:00Z"
-  },
-  {
-    "id": 6,
-    "name": "İzolyasiya",
-    "description": "İstilik, səs və su izolyasiyası materialları",
-    "image": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400",
-    "productCount": 1,
-    "status": "active",
-    "createdAt": "2024-01-20T13:00:00Z",
-    "updatedAt": "2024-01-20T13:00:00Z"
-  },
-  {
-    "id": 7,
-    "name": "Alüminium Profil",
-    "description": "Pəncərə, qapı və konstruksiya profillər",
-    "image": "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400",
-    "productCount": 1,
-    "status": "active",
-    "createdAt": "2024-01-21T14:00:00Z",
-    "updatedAt": "2024-01-21T14:00:00Z"
-  },
-  {
     "id": 8,
-    "name": [
-      "12345",
-      "12345"
-    ],
-    "description": [
-      "12345t",
-      "12345t"
-    ],
-    "image": "/uploads/imageFile-1755252343607-500439915.jpg",
+    "name": "Test Kateqoriyası1211221212",
+    "description": "Test məqsədilə yaradılmış kateqoriya12121",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5vUjzGVx60NqzYjEeq02Q5dKlKUAUjy7hQQ&s",
     "productCount": 0,
-    "status": [
-      "active",
-      "active"
-    ],
-    "createdAt": "2025-08-15T10:05:43.625Z"
+    "status": "active",
+    "createdAt": "2025-08-15T10:05:43.625Z",
+    "updatedAt": "2025-08-18T06:02:18.029Z"
+  },
+  {
+    "id": 9,
+    "name": "Test2121221",
+    "description": "212122",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5vUjzGVx60NqzYjEeq02Q5dKlKUAUjy7hQQ&s",
+    "status": "active",
+    "productCount": 0,
+    "createdAt": "2025-08-16T19:24:29.699Z",
+    "updatedAt": "2025-08-18T06:01:22.842Z"
   }
 ]
